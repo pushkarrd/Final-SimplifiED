@@ -10,11 +10,12 @@ import React, { useEffect, useState, useRef } from 'react';
 import useAudioRecorder from '../../hooks/useAudioRecorder';
 import Button from '../common/Button';
 
-export default function AudioRecorder({ onRecordingComplete, onTranscriptionUpdate }) {
+export default function AudioRecorder({ onRecordingComplete, onTranscriptionUpdate, onRecordingStateChange }) {
   const { isRecording, audioBlob, duration, error, startRecording, stopRecording } = useAudioRecorder();
   const [transcription, setTranscription] = useState('');
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef(null);
+  const accumulatedTranscriptRef = useRef(''); // Store accumulated text across restarts
 
   // Initialize Web Speech API
   useEffect(() => {
@@ -24,6 +25,7 @@ export default function AudioRecorder({ onRecordingComplete, onTranscriptionUpda
       recognitionRef.current.continuous = true;
       recognitionRef.current.interimResults = true;
       recognitionRef.current.lang = 'en-US';
+      recognitionRef.current.maxAlternatives = 1;
 
       recognitionRef.current.onresult = (event) => {
         let finalTranscript = '';
@@ -38,8 +40,14 @@ export default function AudioRecorder({ onRecordingComplete, onTranscriptionUpda
           }
         }
 
-        const fullTranscript = transcription + finalTranscript + interimTranscript;
-        setTranscription(transcription + finalTranscript);
+        // Append final transcript to accumulated ref to persist across restarts
+        if (finalTranscript) {
+          accumulatedTranscriptRef.current += finalTranscript;
+        }
+
+        // Combine accumulated + interim for display
+        const fullTranscript = accumulatedTranscriptRef.current + interimTranscript;
+        setTranscription(accumulatedTranscriptRef.current);
         
         // Send live updates to parent
         if (onTranscriptionUpdate) {
@@ -48,11 +56,15 @@ export default function AudioRecorder({ onRecordingComplete, onTranscriptionUpda
       };
 
       recognitionRef.current.onerror = (event) => {
-        // Ignore 'no-speech' and 'aborted' errors - they're normal during continuous recognition
+        // Silently handle 'no-speech' and 'aborted' - they're normal during continuous recognition
         if (event.error === 'no-speech' || event.error === 'aborted') {
-          console.log('Speech recognition:', event.error, '- will auto-restart');
+          // Don't log - this is expected behavior when there's silence
+          return;
         } else if (event.error === 'audio-capture') {
           console.error('Microphone error - please check your microphone');
+          setIsListening(false);
+        } else if (event.error === 'not-allowed') {
+          console.error('Microphone permission denied - please allow microphone access');
           setIsListening(false);
         } else {
           console.error('Speech recognition error:', event.error);
@@ -60,58 +72,95 @@ export default function AudioRecorder({ onRecordingComplete, onTranscriptionUpda
       };
 
       recognitionRef.current.onend = () => {
-        // Auto-restart if still recording (with small delay to prevent conflicts)
+        // Auto-restart if still recording (with longer delay to prevent rapid restarts)
         if (isListening && isRecording) {
           setTimeout(() => {
             if (isListening && isRecording && recognitionRef.current) {
               try {
                 recognitionRef.current.start();
-                console.log('Speech recognition restarted');
               } catch (e) {
-                console.log('Could not restart recognition:', e.message);
+                // Silently fail - might be already started
+                if (e.message.includes('already started')) {
+                  // Expected - ignore
+                } else {
+                  console.log('Recognition restart issue:', e.message);
+                }
               }
             }
-          }, 100);
+          }, 500); // Increased delay to 500ms
         } else {
           setIsListening(false);
         }
+      };
+
+      recognitionRef.current.onstart = () => {
+        console.log('Speech recognition active and listening...');
       };
     }
 
     return () => {
       if (recognitionRef.current && isListening) {
-        recognitionRef.current.stop();
+        try {
+          recognitionRef.current.stop();
+        } catch (e) {
+          // Already stopped
+        }
       }
     };
-  }, [transcription, onTranscriptionUpdate, isListening]);
+  }, [transcription, onTranscriptionUpdate, isListening, isRecording]);
 
   // Handle start recording
   const handleStartRecording = async () => {
+    // Clear transcription immediately (no delay)
     setTranscription('');
+    accumulatedTranscriptRef.current = '';
+    
+    // Notify parent to clear live transcription display immediately
+    if (onTranscriptionUpdate) {
+      onTranscriptionUpdate('');
+    }
+    
     await startRecording();
     
-    // Start speech recognition with a small delay after microphone starts
+    // Notify parent that recording has started
+    if (onRecordingStateChange) {
+      onRecordingStateChange(true);
+    }
+    
+    // Start speech recognition with a minimal delay after microphone starts
     if (recognitionRef.current) {
       setTimeout(() => {
         try {
-          recognitionRef.current.start();
           setIsListening(true);
-          console.log('Speech recognition started');
+          recognitionRef.current.start();
+          console.log('🎤 Speech recognition started - speak clearly into your microphone');
         } catch (e) {
           console.error('Could not start speech recognition:', e.message);
+          setIsListening(false);
         }
-      }, 300);
+      }, 200); // Minimal delay for faster response
     }
   };
-
   // Handle stop recording
   const handleStopRecording = () => {
+    setIsListening(false);
+    
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {
+        // Already stopped
+      }
+    }
+    
     stopRecording();
     
-    if (recognitionRef.current && isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
+    // Notify parent that recording has stopped
+    if (onRecordingStateChange) {
+      onRecordingStateChange(false);
     }
+    
+    console.log('✅ Recording stopped');
   };
   
   // When recording stops and audioBlob is ready, pass it to parent

@@ -5,18 +5,29 @@
 // Stats cards: Total lectures, Total hours recorded, This week count
 // Uses grid layout, responsive design
 
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/layout/Navbar';
 import Silk from '../components/common/Silk';
 import Button from '../components/common/Button';
+import AudioUpload from '../components/lecture/AudioUpload';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Folder, Clock, Calendar, Trash2 } from 'lucide-react';
+import { getUserLectures, deleteLecture, createLecture } from '../services/backendApi';
 
 export default function Dashboard() {
-  const { isDyslexicMode, toggleDyslexicMode } = useTheme();
+  const { isDyslexicMode, toggleDyslexicMode, isDark } = useTheme();
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
+  const [recentLectures, setRecentLectures] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [stats, setStats] = useState({
+    totalLectures: 0,
+    totalHours: 0,
+    thisWeek: 0,
+  });
   
   // Get user's first name from display name or email
   const getUserFirstName = () => {
@@ -30,11 +41,147 @@ export default function Dashboard() {
   };
   
   const userName = getUserFirstName();
-  const recentLectures = [];
-  const stats = {
-    totalLectures: 0,
-    totalHours: 0,
-    thisWeek: 0,
+  
+  // Fetch user's lectures
+  useEffect(() => {
+    const fetchLectures = async () => {
+      if (!currentUser?.uid) {
+        setLoading(false);
+        return;
+      }
+      
+      try {
+        setLoading(true);
+        const lectures = await getUserLectures(currentUser.uid);
+        
+        // Sort by creation date (newest first)
+        const sortedLectures = lectures.sort((a, b) => {
+          const dateA = a.createdAt?._seconds || 0;
+          const dateB = b.createdAt?._seconds || 0;
+          return dateB - dateA;
+        });
+        
+        // Assign lecture numbers (newest = Lecture 1)
+        const lecturesWithNumbers = sortedLectures.map((lecture, index) => ({
+          ...lecture,
+          lectureNumber: index + 1
+        }));
+        
+        // Show only top 6 most recent
+        setRecentLectures(lecturesWithNumbers.slice(0, 6));
+        
+        // Calculate stats
+        const now = new Date();
+        const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        
+        const thisWeekCount = lectures.filter(lecture => {
+          const lectureDate = new Date((lecture.createdAt?._seconds || 0) * 1000);
+          return lectureDate >= oneWeekAgo;
+        }).length;
+        
+        setStats({
+          totalLectures: lectures.length,
+          totalHours: Math.round(lectures.length * 0.5), // Estimate 0.5 hours per lecture
+          thisWeek: thisWeekCount,
+        });
+      } catch (error) {
+        console.error('Error fetching lectures:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchLectures();
+  }, [currentUser]);
+  
+  // Delete old lectures beyond top 6
+  const cleanupOldLectures = async () => {
+    if (!currentUser?.uid) return;
+    
+    if (!window.confirm('This will delete all lectures except the 6 most recent. Continue?')) {
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      const lectures = await getUserLectures(currentUser.uid);
+      
+      // Sort by creation date (newest first)
+      const sortedLectures = lectures.sort((a, b) => {
+        const dateA = a.createdAt?._seconds || 0;
+        const dateB = b.createdAt?._seconds || 0;
+        return dateB - dateA;
+      });
+      
+      // Get lectures to delete (all except top 6)
+      const lecturesToDelete = sortedLectures.slice(6);
+      
+      if (lecturesToDelete.length === 0) {
+        alert('You have 6 or fewer lectures. Nothing to delete.');
+        setLoading(false);
+        return;
+      }
+      
+      // Delete old lectures
+      let deletedCount = 0;
+      for (const lecture of lecturesToDelete) {
+        try {
+          await deleteLecture(lecture.id);
+          deletedCount++;
+        } catch (error) {
+          console.error(`Failed to delete lecture ${lecture.id}:`, error);
+        }
+      }
+      
+      alert(`Successfully deleted ${deletedCount} old lecture(s).`);
+      
+      // Refresh the lecture list
+      window.location.reload();
+    } catch (error) {
+      console.error('Error cleaning up lectures:', error);
+      alert('Failed to cleanup lectures. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Handle audio upload completion
+  const handleAudioUploadComplete = async (transcription) => {
+    try {
+      setShowUploadModal(false);
+      
+      if (!currentUser?.uid) {
+        alert('Please log in to save your recording');
+        return;
+      }
+
+      // Create lecture with transcription
+      const lectureId = await createLecture(currentUser.uid, transcription);
+      
+      // Navigate to lecture page which will auto-process
+      navigate(`/lecture?id=${lectureId}&autoProcess=true`);
+      
+    } catch (error) {
+      console.error('Error saving uploaded audio transcription:', error);
+      alert('Failed to save transcription. Please try again.');
+    }
+  };
+  
+  // Format timestamp to readable date
+  const formatDate = (timestamp) => {
+    if (!timestamp?._seconds) return 'Just now';
+    const date = new Date(timestamp._seconds * 1000);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} min ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    return date.toLocaleDateString();
   };
   
   return (
@@ -143,8 +290,11 @@ export default function Dashboard() {
             </Link>
             
             {/* Upload Audio card */}
-            <div className="bg-white/10 backdrop-blur-sm border-2 border-white/20 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 cursor-pointer">
-              <div className="text-5xl mb-4">📤</div>
+            <div 
+              onClick={() => setShowUploadModal(true)}
+              className="bg-white/10 backdrop-blur-sm border-2 border-white/20 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 cursor-pointer group"
+            >
+              <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">📤</div>
               <h3 className="text-2xl font-bold text-white mb-2">Upload Audio</h3>
               <p className="text-gray-100">Upload an existing audio file to transcribe</p>
             </div>
@@ -152,10 +302,28 @@ export default function Dashboard() {
           
           {/* Recent lectures section */}
           <div className="bg-white/10 backdrop-blur-sm border-2 border-white/20 p-8 rounded-2xl shadow-lg">
-            <h2 className="text-3xl font-bold text-white mb-6 drop-shadow-lg">Recent Lectures</h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-3xl font-bold text-white drop-shadow-lg">Recent Lectures</h2>
+              {stats.totalLectures > 6 && (
+                <button
+                  onClick={cleanupOldLectures}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/50 transition-all"
+                  disabled={loading}
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Keep Only Top 6
+                </button>
+              )}
+            </div>
             
-            {/* Empty state if no lectures */}
-            {recentLectures.length === 0 ? (
+            {/* Loading state */}
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                <p className="text-xl text-gray-100">Loading lectures...</p>
+              </div>
+            ) : recentLectures.length === 0 ? (
+              /* Empty state if no lectures */
               <div className="text-center py-12">
                 <div className="text-6xl mb-4">📝</div>
                 <p className="text-xl text-gray-100 mb-4">No lectures yet</p>
@@ -166,14 +334,77 @@ export default function Dashboard() {
                 </Link>
               </div>
             ) : (
-              // Lecture list will go here
-              <div className="space-y-4">
-                {/* Map through lectures */}
+              /* Lecture list - Square folder cards */
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {recentLectures.map((lecture) => (
+                  <Link
+                    key={lecture.id}
+                    to={`/lecture?id=${lecture.id}`}
+                    className="block group"
+                  >
+                    <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 backdrop-blur-md border-2 border-white/30 rounded-2xl overflow-hidden hover:border-blue-400/60 hover:shadow-2xl hover:shadow-blue-500/30 transition-all duration-300 transform hover:scale-105 h-full">
+                      {/* Folder Icon Header */}
+                      <div className="bg-gradient-to-br from-blue-600/40 to-purple-600/40 p-6 border-b-2 border-white/20">
+                        <div className="flex items-center justify-center mb-3">
+                          <div className="w-20 h-20 rounded-xl bg-white/10 backdrop-blur-sm border-2 border-white/30 flex items-center justify-center group-hover:bg-white/20 transition-all">
+                            <Folder className="w-12 h-12 text-blue-300 group-hover:text-blue-200 transition-colors" strokeWidth={1.5} />
+                          </div>
+                        </div>
+                        <h3 className="text-2xl font-bold text-white text-center group-hover:text-blue-200 transition-colors">
+                          Lecture {lecture.lectureNumber}
+                        </h3>
+                      </div>
+                      
+                      {/* Lecture Details */}
+                      <div className="p-6">
+                        <p className="text-gray-200 text-sm mb-4 line-clamp-3 min-h-[60px]">
+                          {lecture.transcription?.substring(0, 120)}
+                          {lecture.transcription?.length > 120 ? '...' : ''}
+                        </p>
+                        
+                        {/* Status Badge */}
+                        <div className="mb-4">
+                          {lecture.simpleText || lecture.summary ? (
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-500/30 text-green-200 border border-green-400/50">
+                              ✓ Processed
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-500/30 text-yellow-200 border border-yellow-400/50">
+                              ⏳ Pending
+                            </span>
+                          )}
+                        </div>
+                        
+                        {/* Metadata */}
+                        <div className="space-y-2 text-xs text-gray-300">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-3.5 h-3.5 text-blue-400" />
+                            <span>{formatDate(lecture.createdAt)}</span>
+                          </div>
+                          {lecture.updatedAt && (
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-3.5 h-3.5 text-purple-400" />
+                              <span>Updated {formatDate(lecture.updatedAt)}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
               </div>
             )}
           </div>
         </div>
       </div>
+      
+      {/* Audio Upload Modal */}
+      {showUploadModal && (
+        <AudioUpload
+          onUploadComplete={handleAudioUploadComplete}
+          onClose={() => setShowUploadModal(false)}
+        />
+      )}
     </div>
   );
 }

@@ -9,7 +9,8 @@ import Navbar from '../components/layout/Navbar';
 import Silk from '../components/common/Silk';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Volume2, VolumeX, Pause, Play } from 'lucide-react';
+import useTextToSpeech from '../hooks/useTextToSpeech';
 import {
   createLecture,
   getLecture,
@@ -21,51 +22,147 @@ import {
 export default function LecturePage() {
   const { isDark } = useTheme();
   const { currentUser } = useAuth();
+  const { speak, pause, resume, stop, isSpeaking, isPaused, isSupported } = useTextToSpeech();
   const [activeTab, setActiveTab] = useState('live');
   const [currentLectureId, setCurrentLectureId] = useState(null);
   const [liveTranscription, setLiveTranscription] = useState('');
-  const [simpleText, setSimpleText] = useState('');
+  const [breakdownText, setBreakdownText] = useState('');
   const [detailedSteps, setDetailedSteps] = useState('');
   const [mindMap, setMindMap] = useState('');
   const [summary, setSummary] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingStage, setProcessingStage] = useState('');
   const [isLoadingLecture, setIsLoadingLecture] = useState(true);
+  const [isRecording, setIsRecording] = useState(false);
+  const [loadingBreakdown, setLoadingBreakdown] = useState(false);
+  const [loadingSteps, setLoadingSteps] = useState(false);
+  const [loadingMindMap, setLoadingMindMap] = useState(false);
+  const [loadingSummary, setLoadingSummary] = useState(false);
 
   const tabs = [
-    { id: 'live', label: 'Live Transcription', icon: '🎙️' },
-    { id: 'simple', label: 'Simple Text', icon: '📝' },
+    { id: 'live', label: 'Live Transcription', icon: '🎤️' },
+    { id: 'breakdown', label: 'Breakdown Text', icon: '🔤' },
     { id: 'steps', label: 'Detailed Steps', icon: '📋' },
     { id: 'mindmap', label: 'Mind Map', icon: '🧠' },
     { id: 'summary', label: 'Summary', icon: '📄' }
   ];
 
-  // Load the latest lecture from Firestore (memoized to prevent re-renders)
-  const loadLatestLecture = useCallback(async () => {
+  // TTS Button Component - for dyslexic users (slow speech)
+  const TTSButton = ({ content }) => {
+    if (!content || !isSupported) return null;
+
+    const handleTTSClick = () => {
+      if (isSpeaking) {
+        if (isPaused) {
+          resume();
+        } else {
+          pause();
+        }
+      } else {
+        speak(content);
+      }
+    };
+
+    const handleStop = () => {
+      stop();
+    };
+
+    return (
+      <div className="flex items-center gap-2 mb-4">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleTTSClick}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+            isDark
+              ? 'bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/50'
+              : 'bg-blue-100 hover:bg-blue-200 text-blue-700 border border-blue-300'
+          }`}
+        >
+          {isSpeaking ? (
+            isPaused ? (
+              <>
+                <Play className="w-5 h-5" />
+                Resume Reading
+              </>
+            ) : (
+              <>
+                <Pause className="w-5 h-5" />
+                Pause Reading
+              </>
+            )
+          ) : (
+            <>
+              <Volume2 className="w-5 h-5" />
+              Read Aloud (Slow)
+            </>
+          )}
+        </motion.button>
+        {isSpeaking && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleStop}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+              isDark
+                ? 'bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/50'
+                : 'bg-red-100 hover:bg-red-200 text-red-700 border border-red-300'
+            }`}
+          >
+            <VolumeX className="w-5 h-5" />
+            Stop
+          </motion.button>
+        )}
+      </div>
+    );
+  };
+
+  // Load a specific lecture by ID or the latest lecture
+  const loadLatestLecture = useCallback(async (lectureId = null) => {
     if (!currentUser) return;
     
     setIsLoadingLecture(true);
     try {
-      const latestLecture = await getLatestLecture(currentUser.uid);
+      let lecture;
+      if (lectureId) {
+        lecture = await getLecture(lectureId);
+      } else {
+        lecture = await getLatestLecture(currentUser.uid);
+      }
       
-      if (latestLecture) {
-        setCurrentLectureId(latestLecture.id);
-        setLiveTranscription(latestLecture.transcription || '');
-        setSimpleText(latestLecture.simpleText || '');
-        setDetailedSteps(latestLecture.detailedSteps || '');
-        setMindMap(latestLecture.mindMap || '');
-        setSummary(latestLecture.summary || '');
+      if (lecture) {
+        setCurrentLectureId(lecture.id);
+        setLiveTranscription(lecture.transcription || '');
+        setBreakdownText(lecture.simpleText || '');
+        setDetailedSteps(lecture.detailedSteps || '');
+        setMindMap(lecture.mindMap || '');
+        setSummary(lecture.summary || '');
       }
     } catch (error) {
-      console.error('Error loading latest lecture:', error);
+      console.error('Error loading lecture:', error);
     } finally {
       setIsLoadingLecture(false);
     }
   }, [currentUser]);
 
-  // Load latest lecture on component mount
+  // Load lecture on component mount - check URL params
   useEffect(() => {
-    loadLatestLecture();
+    const params = new URLSearchParams(window.location.search);
+    const lectureId = params.get('id');
+    const autoProcess = params.get('autoProcess') === 'true';
+    
+    if (lectureId) {
+      loadLatestLecture(lectureId).then(() => {
+        // Auto-process if requested (from audio upload)
+        if (autoProcess) {
+          processTranscription(lectureId);
+        }
+      });
+    } else {
+      loadLatestLecture();
+    }
   }, [loadLatestLecture]);
 
   // Handle live transcription updates
@@ -78,7 +175,7 @@ export default function LecturePage() {
     if (!currentLectureId) {
       // Just clear local state if no lecture ID
       setLiveTranscription('');
-      setSimpleText('');
+      setBreakdownText('');
       setDetailedSteps('');
       setMindMap('');
       setSummary('');
@@ -90,7 +187,7 @@ export default function LecturePage() {
         await deleteLecture(currentLectureId);
         setCurrentLectureId(null);
         setLiveTranscription('');
-        setSimpleText('');
+        setBreakdownText('');
         setDetailedSteps('');
         setMindMap('');
         setSummary('');
@@ -107,6 +204,10 @@ export default function LecturePage() {
     if (!lectureId) return;
     
     setIsProcessing(true);
+    setLoadingBreakdown(true);
+    setLoadingSteps(true);
+    setLoadingMindMap(true);
+    setLoadingSummary(true);
     
     try {
       setProcessingStage('Processing lecture through AI...');
@@ -115,7 +216,7 @@ export default function LecturePage() {
       const result = await processLecture(lectureId);
       
       // Update local state with results
-      setSimpleText(result.simpleText);
+      setBreakdownText(result.simpleText);
       setDetailedSteps(result.detailedSteps);
       setMindMap(result.mindMap);
       setSummary(result.summary);
@@ -125,6 +226,10 @@ export default function LecturePage() {
       console.error('Error processing transcription:', error);
       setProcessingStage('Error processing. Please try again.');
     } finally {
+      setLoadingBreakdown(false);
+      setLoadingSteps(false);
+      setLoadingMindMap(false);
+      setLoadingSummary(false);
       setTimeout(() => {
         setIsProcessing(false);
         setProcessingStage('');
@@ -132,7 +237,7 @@ export default function LecturePage() {
     }
   }, []);
 
-  // Handle recording complete - save to Firestore only (don't process yet)
+  // Handle recording complete - save to Firestore and auto-process
   const handleRecordingComplete = useCallback(async (audioBlob, transcription) => {
     if (!currentUser) {
       setProcessingStage('Please log in to save your recording');
@@ -147,20 +252,20 @@ export default function LecturePage() {
     }
 
     try {
-      // Save transcription to Firestore (keep it visible in live tab)
+      // Save transcription to Firestore
       setProcessingStage('Saving transcription...');
       const lectureId = await createLecture(currentUser.uid, transcription);
       setCurrentLectureId(lectureId);
-      setProcessingStage('Transcription saved! Click "Process" button to generate AI content.');
       
-      // Don't auto-process - wait for user to click delete or process button
+      // Auto-trigger AI processing immediately after saving
+      setProcessingStage('Processing with AI...');
+      await processTranscription(lectureId);
+      
     } catch (error) {
-      console.error('Error saving transcription:', error);
+      console.error('Error saving or processing transcription:', error);
       alert('Failed to save transcription. Please try again.');
-    } finally {
-      setTimeout(() => setProcessingStage(''), 3000);
     }
-  }, [currentUser]);
+  }, [currentUser, processTranscription]);
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -173,7 +278,7 @@ export default function LecturePage() {
             <div className={`whitespace-pre-wrap ${isDark ? 'text-white' : 'text-gray-900'}`}>
               {liveTranscription || 'Start recording to see live transcription...'}
             </div>
-            {liveTranscription && currentLectureId && (
+            {liveTranscription && currentLectureId && !isRecording && (
               <button
                 onClick={() => processTranscription(currentLectureId)}
                 className={`mt-4 px-6 py-2 rounded-lg font-medium transition-all ${
@@ -189,15 +294,25 @@ export default function LecturePage() {
           </div>
         );
       
-      case 'simple':
+      case 'breakdown':
         return (
           <div className="space-y-4">
             <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-              Simplified, dyslexic-friendly text
+              Text broken down into syllables for easier reading
             </p>
-            <div className={`whitespace-pre-wrap ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              {simpleText || 'Processing will begin after recording stops...'}
-            </div>
+            <TTSButton content={breakdownText} />
+            {loadingBreakdown ? (
+              <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Breaking down text into syllables...
+                </p>
+              </div>
+            ) : (
+              <div className={`whitespace-pre-wrap ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                {breakdownText || 'Processing will begin after recording stops...'}
+              </div>
+            )}
           </div>
         );
       
@@ -207,9 +322,19 @@ export default function LecturePage() {
             <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
               Step-by-step breakdown
             </p>
-            <div className={`whitespace-pre-wrap ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              {detailedSteps || 'Detailed steps will appear here...'}
-            </div>
+            <TTSButton content={detailedSteps} />
+            {loadingSteps ? (
+              <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Generating step-by-step breakdown...
+                </p>
+              </div>
+            ) : (
+              <div className={`whitespace-pre-wrap ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                {detailedSteps || 'Detailed steps will appear here...'}
+              </div>
+            )}
           </div>
         );
       
@@ -217,11 +342,21 @@ export default function LecturePage() {
         return (
           <div className="space-y-4">
             <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-              Visual mind map structure
+              Brief mind map with key points
             </p>
-            <div className={`whitespace-pre-wrap font-mono ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              {mindMap || 'Mind map will be generated...'}
-            </div>
+            <TTSButton content={mindMap} />
+            {loadingMindMap ? (
+              <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Creating mind map...
+                </p>
+              </div>
+            ) : (
+              <div className={`whitespace-pre-wrap font-mono ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                {mindMap || 'Mind map will be generated...'}
+              </div>
+            )}
           </div>
         );
       
@@ -231,9 +366,19 @@ export default function LecturePage() {
             <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
               Final simplified summary
             </p>
-            <div className={`whitespace-pre-wrap ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              {summary || 'Summary will be generated...'}
-            </div>
+            <TTSButton content={summary} />
+            {loadingSummary ? (
+              <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Generating summary...
+                </p>
+              </div>
+            ) : (
+              <div className={`whitespace-pre-wrap ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                {summary || 'Summary will be generated...'}
+              </div>
+            )}
           </div>
         );
       
@@ -287,7 +432,7 @@ export default function LecturePage() {
               </p>
             </div>
             {/* Delete Button */}
-            {(liveTranscription || simpleText || detailedSteps || mindMap || summary) && (
+            {(liveTranscription || breakdownText || detailedSteps || mindMap || summary) && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -329,6 +474,7 @@ export default function LecturePage() {
               <AudioRecorder 
                 onRecordingComplete={handleRecordingComplete}
                 onTranscriptionUpdate={handleTranscriptionUpdate}
+                onRecordingStateChange={setIsRecording}
               />
             </motion.div>
 

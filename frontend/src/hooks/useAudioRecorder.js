@@ -125,12 +125,23 @@ export default function useAudioRecorder() {
   }, []);
   
   // Stop recording function
-  // Stops the MediaRecorder and timer
+  // Stops the MediaRecorder and timer, resets duration
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
-      audioStreamRef.current.getTracks().forEach(track => track.stop());
+      
+      // Stop all audio tracks immediately (stops microphone access)
+      if (audioStreamRef.current) {
+        audioStreamRef.current.getTracks().forEach(track => {
+          track.stop();
+        });
+        audioStreamRef.current = null;
+      }
+      
+      // Clear timer and reset duration to 0
       clearInterval(timerRef.current);
+      setDuration(0);
+      
       setIsRecording(false);
     }
   }, [isRecording]);
