@@ -35,22 +35,92 @@ export default function useAudioRecorder() {
       chunksRef.current = [];
       setDuration(0);
       
-      // Request microphone access
+      // Check if browser supports getUserMedia
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Your browser does not support audio recording. Please use Chrome, Edge, or Firefox.');
+      }
       
-      // Create MediaRecorder
+      // Request microphone access with enhanced constraints
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          sampleRate: 44100
+        } 
+      });
+      audioStreamRef.current = stream;
+      
+      // Check if we got a valid audio track
+      const audioTracks = stream.getAudioTracks();
+      if (audioTracks.length === 0) {
+        throw new Error('No microphone found. Please connect a microphone and try again.');
+      }
+      
+      console.log('Microphone access granted:', audioTracks[0].label);
+      
+      // Determine best audio format
+      let mimeType = 'audio/webm';
+      if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+        mimeType = 'audio/webm;codecs=opus';
+      } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+        mimeType = 'audio/mp4';
+      }
+      
+      // Create MediaRecorder with best format
+      const mediaRecorder = new MediaRecorder(stream, { mimeType });
+      mediaRecorderRef.current = mediaRecorder;
+      
+      console.log('Recording with format:', mimeType);
       
       // Handle data available event
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunksRef.current.push(event.data);
+        }
+      };
       
       // Handle stop event
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: mimeType });
+        setAudioBlob(blob);
+        chunksRef.current = [];
+      };
+      
+      // Handle errors
+      mediaRecorder.onerror = (event) => {
+        console.error('MediaRecorder error:', event.error);
+        setError('Recording error: ' + event.error);
+      };
       
       // Start recording with 1 second chunks
+      mediaRecorder.start(1000);
       
       // Start duration timer
+      timerRef.current = setInterval(() => {
+        setDuration((prev) => prev + 1);
+      }, 1000);
       
       setIsRecording(true);
     } catch (err) {
       console.error('Error starting recording:', err);
-      setError(err.message);
+      
+      // Provide user-friendly error messages
+      let errorMessage = err.message;
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        errorMessage = 'Microphone access denied. Please allow microphone permissions in your browser settings.';
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        errorMessage = 'No microphone found. Please connect a microphone and try again.';
+      } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+        errorMessage = 'Microphone is already in use by another application. Please close other apps and try again.';
+      } else if (err.name === 'OverconstrainedError') {
+        errorMessage = 'Could not start microphone with the requested settings. Please try a different microphone.';
+      } else if (err.name === 'TypeError') {
+        errorMessage = 'Browser does not support audio recording. Please use Chrome, Edge, or Firefox.';
+      }
+      
+      setError(errorMessage);
+      alert(errorMessage);
     }
   }, []);
   

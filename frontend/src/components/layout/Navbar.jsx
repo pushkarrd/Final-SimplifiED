@@ -50,19 +50,6 @@ export default function Navbar() {
           
           {/* Sign in button or user menu */}
           <div className="hidden md:flex items-center gap-4">
-            {/* Theme Toggle Button */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors duration-300"
-              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            >
-              {isDark ? (
-                <Sun className="w-5 h-5 text-yellow-400" />
-              ) : (
-                <Moon className="w-5 h-5 text-gray-300" />
-              )}
-            </button>
-            
             {!currentUser ? (
               <>
                 <Link to="/login">
@@ -98,12 +85,12 @@ export default function Navbar() {
                 </button>
                 
                 {userMenuOpen && (
-                  <div className={`absolute right-0 mt-2 w-48 rounded-lg shadow-lg z-50 ${isDark ? 'bg-gray-700' : 'bg-white'}`}>
+                  <div className={`absolute right-0 mt-2 w-64 rounded-lg shadow-lg z-50 overflow-hidden ${isDark ? 'bg-gray-700' : 'bg-white'}`}>
                     <div className={`px-4 py-3 border-b ${isDark ? 'border-gray-600' : 'border-gray-200'}`}>
-                      <p className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                      <p className={`text-sm font-semibold truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         {currentUser.displayName || currentUser.email}
                       </p>
-                      <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                      <p className={`text-xs truncate ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                         {currentUser.email}
                       </p>
                     </div>
@@ -159,20 +146,10 @@ export default function Navbar() {
             <Link to="/about" className={`block ${isDark ? 'text-gray-300 hover:text-white' : 'text-textDark hover:text-primary'} font-dyslexic text-lg`}>
               About
             </Link>
-            <Link to="/new-lecture" className={`block ${isDark ? 'text-gray-300 hover:text-white' : 'text-textDark hover:text-primary'} font-dyslexic text-lg`}>
+            <Link to="/lecture" className={`block ${isDark ? 'text-gray-300 hover:text-white' : 'text-textDark hover:text-primary'} font-dyslexic text-lg`}>
               New Lecture
             </Link>
             <div className="pt-3 border-t" style={{ borderColor: isDark ? '#4B5563' : '#e5e7eb' }}>
-              <button
-                onClick={toggleTheme}
-                className={`w-full p-2 rounded-lg transition-colors duration-300 mb-3 ${
-                  isDark 
-                    ? 'bg-gray-700 text-yellow-400 hover:bg-gray-600' 
-                    : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                }`}
-              >
-                {isDark ? '☀️ Light Mode' : '🌙 Dark Mode'}
-              </button>
               <Link to="/login" className="block mb-2">
                 <button className="w-full px-6 py-2 rounded-lg font-semibold text-white bg-gray-700 hover:bg-gray-600 transition-colors">
                   Sign In

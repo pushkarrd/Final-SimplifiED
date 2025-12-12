@@ -10,10 +10,26 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/layout/Navbar';
 import Silk from '../components/common/Silk';
 import Button from '../components/common/Button';
+import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
+import { Sparkles } from 'lucide-react';
 
 export default function Dashboard() {
-  // Mock data for now (will connect to Firebase later)
-  const userName = 'Student';
+  const { isDyslexicMode, toggleDyslexicMode } = useTheme();
+  const { currentUser } = useAuth();
+  
+  // Get user's first name from display name or email
+  const getUserFirstName = () => {
+    if (currentUser?.displayName) {
+      return currentUser.displayName.split(' ')[0];
+    }
+    if (currentUser?.email) {
+      return currentUser.email.split('@')[0];
+    }
+    return 'Student';
+  };
+  
+  const userName = getUserFirstName();
   const recentLectures = [];
   const stats = {
     totalLectures: 0,
@@ -65,14 +81,32 @@ export default function Dashboard() {
         <Navbar />
       
         <div className="max-w-7xl mx-auto px-4 py-8">
-          {/* Welcome section */}
-          <div className="mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 drop-shadow-lg">
-              Welcome back, {userName}! 👋
-            </h1>
-            <p className="text-xl text-gray-100 drop-shadow-md">
-              Ready to make learning easier today?
-            </p>
+          {/* Welcome section with Dyslexic Mode Button */}
+          <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 drop-shadow-lg">
+                Welcome back, {userName}! 👋
+              </h1>
+              <p className="text-xl text-gray-100 drop-shadow-md">
+                Ready to make learning easier today?
+              </p>
+            </div>
+            
+            {/* Dyslexic User Toggle Button */}
+            <button
+              onClick={toggleDyslexicMode}
+              className={`
+                flex items-center gap-3 px-6 py-3 rounded-lg font-semibold text-base
+                transition-all duration-300 transform hover:scale-105 shadow-lg
+                ${isDyslexicMode 
+                  ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-blue-500/50' 
+                  : 'bg-white/10 backdrop-blur-sm text-white border-2 border-white/30 hover:bg-white/20'
+                }
+              `}
+            >
+              <Sparkles className={`w-5 h-5 ${isDyslexicMode ? 'animate-pulse' : ''}`} />
+              <span>{isDyslexicMode ? 'Dyslexic Mode ON' : 'Dyslexic User'}</span>
+            </button>
           </div>
           
           {/* Stats cards */}
@@ -100,7 +134,7 @@ export default function Dashboard() {
           {/* Quick actions */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             {/* Start New Lecture card */}
-            <Link to="/new-lecture" className="group">
+            <Link to="/lecture" className="group">
               <div className="bg-gradient-to-br from-blue-600/80 to-purple-600/80 backdrop-blur-sm border-2 border-white/20 text-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:scale-105">
                 <div className="text-5xl mb-4">🎙️</div>
                 <h3 className="text-2xl font-bold mb-2">Start New Lecture</h3>
@@ -125,7 +159,7 @@ export default function Dashboard() {
               <div className="text-center py-12">
                 <div className="text-6xl mb-4">📝</div>
                 <p className="text-xl text-gray-100 mb-4">No lectures yet</p>
-                <Link to="/new-lecture">
+                <Link to="/lecture">
                   <button className="px-8 py-3 rounded-full font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transition-all shadow-lg hover:shadow-xl">
                     Record Your First Lecture
                   </button>

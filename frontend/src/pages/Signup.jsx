@@ -11,10 +11,13 @@ import {
 } from 'firebase/auth';
 import { auth, googleProvider } from '../services/firebase';
 import Silk from '../components/common/Silk';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, BookOpen } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useTheme } from '../context/ThemeContext';
 
 export default function Signup() {
   const navigate = useNavigate();
+  const { isDark } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -70,57 +73,157 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen relative bg-black overflow-hidden flex items-center justify-center">
-      {/* Silk Background */}
-      <div className="fixed inset-0 w-full h-full bg-gradient-to-br from-black via-blue-950 to-slate-950 pointer-events-none z-0"></div>
-      
-      <div className="fixed inset-0 w-full h-full pointer-events-none opacity-60 z-0">
-        <Silk
-          speed={2}
-          scale={1.2}
-          color="#3B82F6"
-          noiseIntensity={0.8}
-          rotation={0.3}
-        />
-      </div>
-      
-      <div className="fixed inset-0 w-full h-full pointer-events-none opacity-40 z-0">
-        <Silk
-          speed={1.5}
-          scale={1}
-          color="#8B5CF6"
-          noiseIntensity={1.2}
-          rotation={-0.2}
-        />
-      </div>
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5 }}
+      className={`min-h-screen relative overflow-hidden flex items-center justify-center transition-colors duration-500 ${
+        isDark ? 'bg-black' : 'bg-gray-50'
+      }`}
+    >
+      {/* Silk Background - Same as Login Page */}
+      {isDark ? (
+        <>
+          <div className="fixed inset-0 w-full h-full bg-gradient-to-br from-black via-blue-950 to-slate-950 pointer-events-none z-0"></div>
+          
+          <div className="fixed inset-0 w-full h-full pointer-events-none opacity-60 z-0">
+            <Silk
+              speed={8}
+              scale={1.5}
+              color="#3B82F6"
+              noiseIntensity={0.7}
+              rotation={0.3}
+            />
+          </div>
+          
+          <div className="fixed inset-0 w-full h-full pointer-events-none opacity-50 z-0">
+            <Silk
+              speed={10}
+              scale={1.2}
+              color="#1E40AF"
+              noiseIntensity={0.6}
+              rotation={-0.2}
+            />
+          </div>
+          
+          <div className="fixed inset-0 w-full h-full pointer-events-none opacity-35 z-0">
+            <Silk
+              speed={7}
+              scale={0.9}
+              color="#0F172A"
+              noiseIntensity={0.5}
+              rotation={0.15}
+            />
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="fixed inset-0 w-full h-full bg-gradient-to-br from-blue-50 via-purple-50 to-cyan-50 pointer-events-none z-0"></div>
+          
+          <div className="fixed inset-0 w-full h-full pointer-events-none opacity-30 z-0">
+            <Silk
+              speed={8}
+              scale={1.5}
+              color="#93C5FD"
+              noiseIntensity={0.5}
+              rotation={0.3}
+            />
+          </div>
+          
+          <div className="fixed inset-0 w-full h-full pointer-events-none opacity-25 z-0">
+            <Silk
+              speed={10}
+              scale={1.2}
+              color="#C4B5FD"
+              noiseIntensity={0.4}
+              rotation={-0.2}
+            />
+          </div>
+          
+          <div className="fixed inset-0 w-full h-full pointer-events-none opacity-20 z-0">
+            <Silk
+              speed={7}
+              scale={0.9}
+              color="#A5F3FC"
+              noiseIntensity={0.3}
+              rotation={0.15}
+            />
+          </div>
+        </>
+      )}
 
       {/* Signup Card */}
-      <div className="relative z-10 max-w-md w-full mx-4">
-        <div className="bg-gradient-to-br from-blue-900/40 via-blue-950/60 to-black/80 backdrop-blur-md rounded-3xl shadow-2xl border border-blue-900/30 overflow-hidden">
+      <motion.div 
+        initial={{ scale: 0.9, y: 50 }}
+        animate={{ scale: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="relative z-10 max-w-md w-full mx-4"
+      >
+        <motion.div 
+          whileHover={{ scale: 1.02 }}
+          transition={{ duration: 0.3 }}
+          className={`backdrop-blur-md rounded-3xl shadow-2xl border-2 overflow-hidden ${
+            isDark 
+              ? 'bg-white/10 border-white/20 hover:border-white/30' 
+              : 'bg-white/70 border-gray-200 hover:border-gray-300'
+          }`}
+        >
           
           {/* Logo and Header */}
-          <div className="text-center pt-8 pb-4 px-6">
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="text-center pt-8 pb-4 px-6"
+          >
             <Link to="/" className="inline-block mb-4">
-              <div className="text-4xl font-black text-white flex items-center justify-center gap-2">
-                <span>📚</span>
+              <motion.div 
+                whileHover={{ scale: 1.05 }}
+                className={`text-4xl font-black flex items-center justify-center gap-2 ${
+                  isDark ? 'text-white' : 'text-gray-900'
+                }`}
+              >
+                <BookOpen className="w-10 h-10 text-blue-400" />
                 <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">SimplifiED</span>
-              </div>
+              </motion.div>
             </Link>
-            <h2 className="text-2xl font-bold text-white mb-1">
+            <motion.h2 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className={`text-2xl font-bold mb-1 ${
+                isDark ? 'text-white' : 'text-gray-900'
+              }`}
+            >
               Create Account
-            </h2>
-            <p className="text-gray-300 text-sm">
+            </motion.h2>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className={`text-sm ${
+                isDark ? 'text-gray-300' : 'text-gray-600'
+              }`}
+            >
               Join SimplifiED to start your learning journey
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
           {/* Form */}
-          <div className="px-8 pb-8">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="px-8 pb-8"
+          >
             {/* Google Signup */}
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02, boxShadow: "0 10px 30px rgba(59, 130, 246, 0.3)" }}
+              whileTap={{ scale: 0.98 }}
               onClick={handleGoogleSignup}
               disabled={loading}
-              className="w-full bg-white hover:bg-gray-100 text-gray-900 font-semibold py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 mb-6 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-white hover:bg-gray-100 text-gray-900 font-semibold py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 mb-6 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -129,7 +232,7 @@ export default function Signup() {
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
               Continue with Google
-            </button>
+            </motion.button>
 
             {/* Divider */}
             <div className="flex items-center gap-4 mb-6">
@@ -140,19 +243,32 @@ export default function Signup() {
 
             {/* Error Message */}
             {error && (
-              <div className="mb-4 p-3 rounded-lg bg-red-500/20 border border-red-500/50 text-red-200 text-sm">
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-4 p-3 rounded-lg bg-red-500/20 border border-red-500/50 text-red-200 text-sm"
+              >
                 {error}
-              </div>
+              </motion.div>
             )}
 
             {/* Email/Password Form */}
             <form onSubmit={handleEmailSignup} className="space-y-4">
               {/* Email Input */}
-              <div>
-                <label className="block text-gray-300 text-sm font-medium mb-2">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6 }}
+              >
+                <label className={`block text-sm font-medium mb-2 ${
+                  isDark ? 'text-gray-300' : 'text-gray-700'
+                }`}>
                   Email Address
                 </label>
-                <div className="relative">
+                <motion.div 
+                  whileFocus={{ scale: 1.02 }}
+                  className="relative"
+                >
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-blue-400" />
                   <input
                     type="email"
@@ -160,17 +276,30 @@ export default function Signup() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     placeholder="your@email.com"
-                    className="w-full pl-11 pr-4 py-3 rounded-xl bg-blue-950/40 border border-blue-900/40 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className={`w-full pl-11 pr-4 py-3 rounded-xl border transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      isDark 
+                        ? 'bg-white/10 border-white/20 text-white placeholder-gray-400' 
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    }`}
                   />
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
 
               {/* Password Input */}
-              <div>
-                <label className="block text-gray-300 text-sm font-medium mb-2">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.7 }}
+              >
+                <label className={`block text-sm font-medium mb-2 ${
+                  isDark ? 'text-gray-300' : 'text-gray-700'
+                }`}>
                   Password
                 </label>
-                <div className="relative">
+                <motion.div 
+                  whileFocus={{ scale: 1.02 }}
+                  className="relative"
+                >
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-blue-400" />
                   <input
                     type={showPassword ? "text" : "password"}
@@ -178,24 +307,41 @@ export default function Signup() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     placeholder="••••••••"
-                    className="w-full pl-11 pr-11 py-3 rounded-xl bg-blue-950/40 border border-blue-900/40 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className={`w-full pl-11 pr-11 py-3 rounded-xl border transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      isDark 
+                        ? 'bg-white/10 border-white/20 text-white placeholder-gray-400' 
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    }`}
                   />
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                    className={`absolute right-3 top-1/2 transform -translate-y-1/2 transition-colors ${
+                      isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'
+                    }`}
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
-              </div>
+                  </motion.button>
+                </motion.div>
+              </motion.div>
 
               {/* Confirm Password Input */}
-              <div>
-                <label className="block text-gray-300 text-sm font-medium mb-2">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.8 }}
+              >
+                <label className={`block text-sm font-medium mb-2 ${
+                  isDark ? 'text-gray-300' : 'text-gray-700'
+                }`}>
                   Confirm Password
                 </label>
-                <div className="relative">
+                <motion.div 
+                  whileFocus={{ scale: 1.02 }}
+                  className="relative"
+                >
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-blue-400" />
                   <input
                     type={showConfirmPassword ? "text" : "password"}
@@ -203,47 +349,69 @@ export default function Signup() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                     placeholder="••••••••"
-                    className="w-full pl-11 pr-11 py-3 rounded-xl bg-blue-950/40 border border-blue-900/40 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className={`w-full pl-11 pr-11 py-3 rounded-xl border transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      isDark 
+                        ? 'bg-white/10 border-white/20 text-white placeholder-gray-400' 
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    }`}
                   />
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                    className={`absolute right-3 top-1/2 transform -translate-y-1/2 transition-colors ${
+                      isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'
+                    }`}
                   >
                     {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
-              </div>
+                  </motion.button>
+                </motion.div>
+              </motion.div>
 
               {/* Submit Button */}
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02, boxShadow: "0 10px 30px rgba(59, 130, 246, 0.4)" }}
+                whileTap={{ scale: 0.98 }}
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed mt-6"
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed mt-6 shadow-lg"
               >
                 {loading ? 'Creating Account...' : 'Create Account'}
-              </button>
+              </motion.button>
             </form>
 
             {/* Sign In Link */}
-            <div className="mt-6 text-center">
-              <p className="text-gray-400 text-sm">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.9 }}
+              className="mt-6 text-center"
+            >
+              <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                 Already have an account?{' '}
                 <Link to="/login" className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">
                   Sign In
                 </Link>
               </p>
-            </div>
-          </div>
-        </div>
+            </motion.div>
+          </motion.div>
+        </motion.div>
 
         {/* Back to Home Link */}
-        <div className="text-center mt-6">
-          <Link to="/" className="text-gray-400 hover:text-white text-sm transition-colors">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.0 }}
+          className="text-center mt-6"
+        >
+          <Link to="/" className={`text-sm transition-colors ${
+            isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'
+          }`}>
             ← Back to Home
           </Link>
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 }

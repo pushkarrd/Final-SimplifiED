@@ -9,15 +9,15 @@ import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
-// Firebase configuration object from environment variables
+// Firebase configuration object
 // Keys: apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: "AIzaSyAq0Nm9ce87fMJCbcGecKRl46ZxttVm9MU",
+  authDomain: "simplified-code-lunatics.firebaseapp.com",
+  projectId: "simplified-code-lunatics",
+  storageBucket: "simplified-code-lunatics.firebasestorage.app",
+  messagingSenderId: "349702057262",
+  appId: "1:349702057262:web:c331afe0e6e6c2c1cc5ebf"
 };
 
 // Initialize Firebase app with config
