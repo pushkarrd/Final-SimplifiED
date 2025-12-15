@@ -55,21 +55,15 @@ void main() {
   vec2  tex        = uv * uScale;
   float tOffset    = uSpeed * uTime;
 
-  // Enhanced wave patterns for smoother flow
-  tex.y += 0.05 * sin(6.0 * tex.x - tOffset);
-  tex.x += 0.03 * cos(5.0 * tex.y + tOffset * 0.5);
+  tex.y += 0.03 * sin(8.0 * tex.x - tOffset);
 
-  // Rich pattern with multiple sine waves for complexity
-  float pattern = 0.5 +
-                  0.35 * sin(4.0 * (tex.x + tex.y +
-                                   cos(2.5 * tex.x + 4.5 * tex.y) +
-                                   0.03 * tOffset) +
-                           sin(18.0 * (tex.x + tex.y - 0.15 * tOffset))) +
-                  0.15 * cos(7.0 * tex.x - tOffset * 0.3) +
-                  0.15 * sin(6.0 * tex.y + tOffset * 0.4);
+  float pattern = 0.6 +
+                  0.4 * sin(5.0 * (tex.x + tex.y +
+                                   cos(3.0 * tex.x + 5.0 * tex.y) +
+                                   0.02 * tOffset) +
+                           sin(20.0 * (tex.x + tex.y - 0.1 * tOffset)));
 
-  // Enhanced color with better saturation
-  vec4 col = vec4(uColor, 1.0) * vec4(pattern) - rnd / 18.0 * uNoiseIntensity;
+  vec4 col = vec4(uColor, 1.0) * vec4(pattern) - rnd / 15.0 * uNoiseIntensity;
   col.a = 1.0;
   gl_FragColor = col;
 }
@@ -97,7 +91,7 @@ const SilkPlane = forwardRef(function SilkPlane({ uniforms }, ref) {
 });
 SilkPlane.displayName = 'SilkPlane';
 
-const Silk = ({ speed = 5, scale = 1, color = '#7B7481', noiseIntensity = 1.5, rotation = 0 }) => {
+const Silk = ({ speed = 10, scale = 1, color = '#7B7481', noiseIntensity = 1.5, rotation = 0 }) => {
   const meshRef = useRef();
 
   const uniforms = useMemo(

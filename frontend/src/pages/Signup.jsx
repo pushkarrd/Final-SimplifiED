@@ -78,96 +78,33 @@ export default function Signup() {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
-      className={`min-h-screen relative overflow-hidden flex items-center justify-center transition-colors duration-500 ${
-        isDark ? 'bg-black' : 'bg-gray-50'
-      }`}
+      className="min-h-screen relative overflow-hidden flex items-center justify-center transition-colors duration-500"
+      style={{ backgroundColor: '#5227FF' }}
     >
-      {/* Silk Background - Same as Login Page */}
-      {isDark ? (
-        <>
-          <div className="fixed inset-0 w-full h-full bg-gradient-to-br from-black via-blue-950 to-slate-950 pointer-events-none z-0"></div>
-          
-          <div className="fixed inset-0 w-full h-full pointer-events-none opacity-60 z-0">
-            <Silk
-              speed={8}
-              scale={1.5}
-              color="#3B82F6"
-              noiseIntensity={0.7}
-              rotation={0.3}
-            />
-          </div>
-          
-          <div className="fixed inset-0 w-full h-full pointer-events-none opacity-50 z-0">
-            <Silk
-              speed={10}
-              scale={1.2}
-              color="#1E40AF"
-              noiseIntensity={0.6}
-              rotation={-0.2}
-            />
-          </div>
-          
-          <div className="fixed inset-0 w-full h-full pointer-events-none opacity-35 z-0">
-            <Silk
-              speed={7}
-              scale={0.9}
-              color="#0F172A"
-              noiseIntensity={0.5}
-              rotation={0.15}
-            />
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="fixed inset-0 w-full h-full bg-gradient-to-br from-blue-50 via-purple-50 to-cyan-50 pointer-events-none z-0"></div>
-          
-          <div className="fixed inset-0 w-full h-full pointer-events-none opacity-30 z-0">
-            <Silk
-              speed={8}
-              scale={1.5}
-              color="#93C5FD"
-              noiseIntensity={0.5}
-              rotation={0.3}
-            />
-          </div>
-          
-          <div className="fixed inset-0 w-full h-full pointer-events-none opacity-25 z-0">
-            <Silk
-              speed={10}
-              scale={1.2}
-              color="#C4B5FD"
-              noiseIntensity={0.4}
-              rotation={-0.2}
-            />
-          </div>
-          
-          <div className="fixed inset-0 w-full h-full pointer-events-none opacity-20 z-0">
-            <Silk
-              speed={7}
-              scale={0.9}
-              color="#A5F3FC"
-              noiseIntensity={0.3}
-              rotation={0.15}
-            />
-          </div>
-        </>
-      )}
+      {/* Silk Background - Same as Landing Page */}
+      <div className="fixed inset-0 w-full h-full pointer-events-none z-0">
+        <Silk
+          speed={10}
+          scale={1}
+          color="#5227FF"
+          noiseIntensity={1.8}
+          rotation={0}
+        />
+      </div>
 
+      {/* Content Container */}
+      <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
       {/* Signup Card */}
       <motion.div 
         initial={{ scale: 0.9, y: 50 }}
         animate={{ scale: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative z-10 max-w-md w-full mx-4"
+        className="relative z-10 w-full max-w-sm sm:max-w-md lg:max-w-sm"
       >
         <motion.div 
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: 1.01 }}
           transition={{ duration: 0.3 }}
-          className={`backdrop-blur-md rounded-3xl shadow-2xl border-2 overflow-hidden ${
-            isDark 
-              ? 'bg-white/10 border-white/20 hover:border-white/30' 
-              : 'bg-white/70 border-gray-200 hover:border-gray-300'
-          }`}
+          className="backdrop-blur-lg rounded-2xl shadow-xl border overflow-hidden bg-white/5 border-white/10 hover:border-white/20"
         >
           
           {/* Logo and Header */}
@@ -175,16 +112,14 @@ export default function Signup() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="text-center pt-8 pb-4 px-6"
+            className="text-center pt-6 pb-3 px-4 sm:px-6"
           >
-            <Link to="/" className="inline-block mb-4">
+            <Link to="/" className="inline-block mb-3">
               <motion.div 
                 whileHover={{ scale: 1.05 }}
-                className={`text-4xl font-black flex items-center justify-center gap-2 ${
-                  isDark ? 'text-white' : 'text-gray-900'
-                }`}
+                className="text-2xl sm:text-3xl font-black flex items-center justify-center gap-2 text-white"
               >
-                <BookOpen className="w-10 h-10 text-blue-400" />
+                <BookOpen className="w-8 h-8 sm:w-10 sm:h-10 text-blue-400" />
                 <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">SimplifiED</span>
               </motion.div>
             </Link>
@@ -192,9 +127,7 @@ export default function Signup() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className={`text-2xl font-bold mb-1 ${
-                isDark ? 'text-white' : 'text-gray-900'
-              }`}
+              className="text-xl sm:text-2xl font-bold mb-1 text-white"
             >
               Create Account
             </motion.h2>
@@ -203,7 +136,7 @@ export default function Signup() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
               className={`text-sm ${
-                isDark ? 'text-gray-300' : 'text-gray-600'
+                isDark ? 'text-gray-300' : 'text-white'
               }`}
             >
               Join SimplifiED to start your learning journey
@@ -215,7 +148,7 @@ export default function Signup() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="px-8 pb-8"
+            className="px-4 sm:px-6 pb-6"
           >
             {/* Google Signup */}
             <motion.button
@@ -375,7 +308,7 @@ export default function Signup() {
                 whileTap={{ scale: 0.98 }}
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed mt-6 shadow-lg"
+                className="w-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed mt-6 shadow-lg"
               >
                 {loading ? 'Creating Account...' : 'Create Account'}
               </motion.button>
@@ -388,7 +321,7 @@ export default function Signup() {
               transition={{ delay: 0.9 }}
               className="mt-6 text-center"
             >
-              <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+              <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-white'}`}>
                 Already have an account?{' '}
                 <Link to="/login" className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">
                   Sign In
@@ -406,12 +339,13 @@ export default function Signup() {
           className="text-center mt-6"
         >
           <Link to="/" className={`text-sm transition-colors ${
-            isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'
+            isDark ? 'text-white hover:text-white' : 'text-white hover:text-whiteS'
           }`}>
             ← Back to Home
           </Link>
         </motion.div>
       </motion.div>
+      </div>
     </motion.div>
   );
 }

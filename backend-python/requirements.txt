@@ -2,7 +2,7 @@ fastapi
 uvicorn[standard]
 python-dotenv
 firebase-admin
-ollama
+google-generativeai
 httpx
 requests
 python-multipart

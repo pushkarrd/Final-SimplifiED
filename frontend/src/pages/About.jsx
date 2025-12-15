@@ -8,41 +8,15 @@ export default function About() {
   const { isDark } = useTheme();
 
   return (
-    <div className="min-h-screen relative bg-black overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden transition-colors duration-500" style={{ backgroundColor: '#5227FF' }}>
       {/* Silk Background - Covers entire page */}
-      {/* Dark base layer */}
-      <div className="fixed inset-0 w-full h-full bg-linear-to-br from-black via-blue-950 to-slate-950 pointer-events-none z-0"></div>
-      
-      {/* Primary Silk layer - Bright Blue */}
-      <div className="fixed inset-0 w-full h-full pointer-events-none opacity-60 z-0">
-        <Silk
-          speed={8}
-          scale={1.5}
-          color="#3B82F6"
-          noiseIntensity={0.7}
-          rotation={0.3}
-        />
-      </div>
-      
-      {/* Secondary Silk layer - Deep Blue for depth */}
-      <div className="fixed inset-0 w-full h-full pointer-events-none opacity-50 z-0">
+      <div className="fixed inset-0 w-full h-full pointer-events-none z-0">
         <Silk
           speed={10}
-          scale={1.2}
-          color="#1E40AF"
-          noiseIntensity={0.6}
-          rotation={-0.2}
-        />
-      </div>
-      
-      {/* Tertiary Silk layer - Black accent for contrast */}
-      <div className="fixed inset-0 w-full h-full pointer-events-none opacity-35 z-0">
-        <Silk
-          speed={7}
-          scale={0.9}
-          color="#0F172A"
-          noiseIntensity={0.5}
-          rotation={0.15}
+          scale={1}
+          color="#5227FF"
+          noiseIntensity={1.8}
+          rotation={0}
         />
       </div>
 
