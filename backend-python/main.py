@@ -8,12 +8,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import firebase_admin
 from firebase_admin import credentials, firestore
-import ollama
 from datetime import datetime
 import os
 from dotenv import load_dotenv
 import requests
 import time
+import json
 
 # Load environment variables
 load_dotenv()
@@ -47,16 +47,18 @@ class LectureUpdate(BaseModel):
     mindMap: str = None
     summary: str = None
 
-# Ollama model name
-OLLAMA_MODEL = "llama3.2:3b"
+# Grok AI API Configuration
+GROK_API_KEY = os.getenv("GROK_API_KEY", "")  # Load from environment variable
+GROK_API_URL = "https://api.x.ai/v1/chat/completions"
+GROK_MODEL = "grok-4-latest"
 
 @app.get("/")
 async def root():
-    return {"message": "SimplifiED Backend with Ollama", "status": "running"}
+    return {"message": "SimplifiED Backend with Grok AI", "status": "running"}
 
 @app.get("/health")
 async def health_check():
-    return {"status": "ok", "ollama_model": OLLAMA_MODEL}
+    return {"status": "ok", "grok_model": GROK_MODEL}
 
 def chunk_text(text: str, max_chunk_size: int = 500) -> list:
     """Split text into smaller chunks for faster processing"""
@@ -82,37 +84,39 @@ def chunk_text(text: str, max_chunk_size: int = 500) -> list:
     
     return chunks
 
-def generate_with_ollama(prompt: str, system: str = None, stream: bool = False) -> str:
-    """Generate text using Ollama with optimized settings"""
+def generate_with_grok(prompt: str, system: str = None, stream: bool = False) -> str:
+    """Generate text using Grok AI with optimized settings"""
     try:
         messages = []
         if system:
             messages.append({"role": "system", "content": system})
         messages.append({"role": "user", "content": prompt})
         
-        # Optimized Ollama parameters for faster generation
-        response = ollama.chat(
-            model=OLLAMA_MODEL,
-            messages=messages,
-            stream=stream,
-            options={
-                "temperature": 0.5,  # Lower temperature = faster, more focused responses
-                "top_k": 40,  # Limit vocabulary for faster generation
-                "top_p": 0.9,  # Nucleus sampling
-                "num_predict": 500,  # Maximum tokens to generate (prevents long outputs)
-            }
-        )
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {GROK_API_KEY}"
+        }
         
-        if stream:
-            result = ""
-            for chunk in response:
-                result += chunk['message']['content']
-            return result
-        else:
-            return response['message']['content']
+        payload = {
+            "messages": messages,
+            "model": GROK_MODEL,
+            "stream": stream,
+            "temperature": 0.3,
+            "max_tokens": 500
+        }
+        
+        response = requests.post(GROK_API_URL, headers=headers, json=payload, timeout=30)
+        response.raise_for_status()
+        
+        data = response.json()
+        return data['choices'][0]['message']['content']
+        
+    except requests.exceptions.RequestException as e:
+        print(f"Grok API error: {e}")
+        raise HTTPException(status_code=500, detail=f"Grok processing failed: {str(e)}")
     except Exception as e:
-        print(f"Ollama error: {e}")
-        raise HTTPException(status_code=500, detail=f"Ollama processing failed: {str(e)}")
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail=f"Grok processing failed: {str(e)}")
 
 @app.post("/api/lectures")
 async def create_lecture(lecture: LectureCreate):
@@ -173,7 +177,7 @@ async def get_latest_lecture(user_id: str):
 
 @app.post("/api/lectures/{lecture_id}/process")
 async def process_lecture(lecture_id: str):
-    """Process lecture transcription through Ollama with chunking for faster processing"""
+    """Process lecture transcription through Grok AI with chunking for faster processing"""
     try:
         # Get the lecture
         doc = db.collection("lectures").document(lecture_id).get()
@@ -237,22 +241,22 @@ Summary:"""
         # Use ThreadPoolExecutor for parallel processing (simpler, no asyncio issues)
         with ThreadPoolExecutor(max_workers=4) as executor:
             breakdown_future = executor.submit(
-                generate_with_ollama, 
+                generate_with_grok, 
                 breakdown_prompt,
                 "Break words into syllables. Output only the result."
             )
             steps_future = executor.submit(
-                generate_with_ollama,
+                generate_with_grok,
                 steps_prompt,
                 "Create numbered steps. Be concise."
             )
             mindmap_future = executor.submit(
-                generate_with_ollama,
+                generate_with_grok,
                 mindmap_prompt,
                 "Create a brief mind map. Keep it very short."
             )
             summary_future = executor.submit(
-                generate_with_ollama,
+                generate_with_grok,
                 summary_prompt,
                 "Write a 2-3 sentence summary."
             )
