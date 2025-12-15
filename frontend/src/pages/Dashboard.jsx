@@ -227,14 +227,14 @@ export default function Dashboard() {
       <div className="relative z-10">
         <Navbar />
       
-        <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 md:py-8">
           {/* Welcome section with Dyslexic Mode Button */}
-          <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 drop-shadow-lg">
+          <div className="mb-6 md:mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex-1">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2 drop-shadow-lg">
                 Welcome back, {userName}! 👋
               </h1>
-              <p className="text-xl text-gray-100 drop-shadow-md">
+              <p className="text-base sm:text-lg md:text-xl text-gray-100 drop-shadow-md">
                 Ready to make learning easier today?
               </p>
             </div>
@@ -243,140 +243,142 @@ export default function Dashboard() {
             <button
               onClick={toggleDyslexicMode}
               className={`
-                flex items-center gap-3 px-6 py-3 rounded-lg font-semibold text-base
-                transition-all duration-300 transform hover:scale-105 shadow-lg
+                flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold text-sm sm:text-base
+                transition-all duration-300 transform hover:scale-105 shadow-lg flex-shrink-0 touch-target
                 ${isDyslexicMode 
                   ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-blue-500/50' 
                   : 'bg-white/10 backdrop-blur-sm text-white border-2 border-white/30 hover:bg-white/20'
                 }
               `}
             >
-              <Sparkles className={`w-5 h-5 ${isDyslexicMode ? 'animate-pulse' : ''}`} />
-              <span>{isDyslexicMode ? 'Dyslexic Mode ON' : 'Dyslexic User'}</span>
+              <Sparkles className={`w-4 sm:w-5 h-4 sm:h-5 ${isDyslexicMode ? 'animate-pulse' : ''}`} />
+              <span className="whitespace-nowrap">{isDyslexicMode ? 'Dyslexic ON' : 'Dyslexic User'}</span>
             </button>
           </div>
           
           {/* Stats cards */}
           {/* 3 cards in grid: Total Lectures, Total Hours, This Week */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white/10 backdrop-blur-sm border-2 border-white/20 p-6 rounded-2xl shadow-lg hover:shadow-xl hover:bg-white/20 transition-all duration-300">
-              <div className="text-3xl mb-2">📚</div>
-              <div className="text-3xl font-bold text-blue-400">{stats.totalLectures}</div>
-              <div className="text-gray-100">Total Lectures</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-6 md:mb-8">
+            <div className="bg-white/10 backdrop-blur-sm border-2 border-white/20 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl hover:bg-white/20 transition-all duration-300">
+              <div className="text-2xl sm:text-3xl mb-2">📚</div>
+              <div className="text-2xl sm:text-3xl font-bold text-blue-400">{stats.totalLectures}</div>
+              <div className="text-xs sm:text-sm text-gray-100">Total Lectures</div>
             </div>
             
-            <div className="bg-white/10 backdrop-blur-sm border-2 border-white/20 p-6 rounded-2xl shadow-lg hover:shadow-xl hover:bg-white/20 transition-all duration-300">
-              <div className="text-3xl mb-2">⏱️</div>
-              <div className="text-3xl font-bold text-purple-400">{stats.totalHours}h</div>
-              <div className="text-gray-100">Hours Recorded</div>
+            <div className="bg-white/10 backdrop-blur-sm border-2 border-white/20 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl hover:bg-white/20 transition-all duration-300">
+              <div className="text-2xl sm:text-3xl mb-2">⏱️</div>
+              <div className="text-2xl sm:text-3xl font-bold text-purple-400">{stats.totalHours}h</div>
+              <div className="text-xs sm:text-sm text-gray-100">Hours Recorded</div>
             </div>
             
-            <div className="bg-white/10 backdrop-blur-sm border-2 border-white/20 p-6 rounded-2xl shadow-lg hover:shadow-xl hover:bg-white/20 transition-all duration-300">
-              <div className="text-3xl mb-2">📅</div>
-              <div className="text-3xl font-bold text-cyan-400">{stats.thisWeek}</div>
-              <div className="text-gray-100">This Week</div>
+            <div className="bg-white/10 backdrop-blur-sm border-2 border-white/20 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl hover:bg-white/20 transition-all duration-300">
+              <div className="text-2xl sm:text-3xl mb-2">📅</div>
+              <div className="text-2xl sm:text-3xl font-bold text-cyan-400">{stats.thisWeek}</div>
+              <div className="text-xs sm:text-sm text-gray-100">This Week</div>
             </div>
           </div>
         
           {/* Quick actions */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-6 mb-6 md:mb-8">
             {/* Start New Lecture card */}
-            <Link to="/lecture" className="group">
-              <div className="bg-gradient-to-br from-blue-600/80 to-purple-600/80 backdrop-blur-sm border-2 border-white/20 text-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:scale-105">
-                <div className="text-5xl mb-4">🎙️</div>
-                <h3 className="text-2xl font-bold mb-2">Start New Lecture</h3>
-                <p className="text-white/90">Record a new lecture with real-time transcription</p>
-              </div>
-            </Link>
+            <div className="group touch-target rounded-xl sm:rounded-2xl h-full">
+              <Link to="/lecture" className="h-full block">
+                <div className="bg-gradient-to-br from-blue-600/80 to-purple-600/80 backdrop-blur-sm border-2 border-white/20 text-white p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 h-full flex flex-col">
+                  <div className="text-4xl sm:text-5xl mb-3 sm:mb-4">🎙️</div>
+                  <h3 className="text-lg sm:text-2xl font-bold mb-1 sm:mb-2">Start New Lecture</h3>
+                  <p className="text-sm sm:text-base text-white/90">Record with real-time transcription</p>
+                </div>
+              </Link>
+            </div>
             
             {/* Upload Audio card */}
             <div 
               onClick={() => setShowUploadModal(true)}
-              className="bg-white/10 backdrop-blur-sm border-2 border-white/20 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 cursor-pointer group"
+              className="bg-white/10 backdrop-blur-sm border-2 border-white/20 p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 cursor-pointer group touch-target h-full flex flex-col"
             >
-              <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">📤</div>
-              <h3 className="text-2xl font-bold text-white mb-2">Upload Audio</h3>
-              <p className="text-gray-100">Upload an existing audio file to transcribe</p>
+              <div className="text-4xl sm:text-5xl mb-3 sm:mb-4 group-hover:scale-110 transition-transform">📤</div>
+              <h3 className="text-lg sm:text-2xl font-bold text-white mb-1 sm:mb-2">Upload Audio</h3>
+              <p className="text-sm sm:text-base text-gray-100">Upload an existing audio file</p>
             </div>
           </div>
           
           {/* Recent lectures section */}
-          <div className="bg-white/10 backdrop-blur-sm border-2 border-white/20 p-8 rounded-2xl shadow-lg">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-3xl font-bold text-white drop-shadow-lg">Recent Lectures</h2>
+          <div className="bg-white/10 backdrop-blur-sm border-2 border-white/20 p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-lg">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-6">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white drop-shadow-lg">Recent Lectures</h2>
               {stats.totalLectures > 6 && (
                 <button
                   onClick={cleanupOldLectures}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/50 transition-all"
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/50 transition-all touch-target flex-shrink-0"
                   disabled={loading}
                 >
                   <Trash2 className="w-4 h-4" />
-                  Keep Only Top 6
+                  <span className="whitespace-nowrap">Keep Top 6</span>
                 </button>
               )}
             </div>
             
             {/* Loading state */}
             {loading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                <p className="text-xl text-gray-100">Loading lectures...</p>
+              <div className="text-center py-8 sm:py-12">
+                <div className="animate-spin rounded-full h-10 sm:h-12 w-10 sm:w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                <p className="text-base sm:text-lg md:text-xl text-gray-100">Loading lectures...</p>
               </div>
             ) : recentLectures.length === 0 ? (
               /* Empty state if no lectures */
-              <div className="text-center py-12">
-                <div className="text-6xl mb-4">📝</div>
-                <p className="text-xl text-gray-100 mb-4">No lectures yet</p>
+              <div className="text-center py-8 sm:py-12">
+                <div className="text-4xl sm:text-5xl md:text-6xl mb-4">📝</div>
+                <p className="text-base sm:text-lg md:text-xl text-gray-100 mb-4">No lectures yet</p>
                 <Link to="/lecture">
-                  <button className="px-8 py-3 rounded-full font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transition-all shadow-lg hover:shadow-xl">
+                  <button className="px-6 sm:px-8 py-2 sm:py-3 rounded-full font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transition-all shadow-lg hover:shadow-xl touch-target">
                     Record Your First Lecture
                   </button>
                 </Link>
               </div>
             ) : (
               /* Lecture list - Square folder cards */
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 auto-rows-fr">
                 {recentLectures.map((lecture) => (
                   <Link
                     key={lecture.id}
                     to={`/lecture?id=${lecture.id}`}
-                    className="block group"
+                    className="block group touch-target rounded-xl sm:rounded-2xl"
                   >
-                    <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 backdrop-blur-md border-2 border-white/30 rounded-2xl overflow-hidden hover:border-blue-400/60 hover:shadow-2xl hover:shadow-blue-500/30 transition-all duration-300 transform hover:scale-105 h-full">
+                    <div className="bg-gradient-to-br from-blue-600/10 to-purple-600/10 backdrop-blur-md border-2 border-white/30 rounded-xl sm:rounded-2xl overflow-hidden hover:border-blue-400/60 hover:shadow-2xl hover:shadow-blue-500/30 transition-all duration-300 transform hover:scale-105 h-full flex flex-col w-full aspect-square">
                       {/* Folder Icon Header */}
-                      <div className="bg-gradient-to-br from-blue-600/40 to-purple-600/40 p-6 border-b-2 border-white/20">
-                        <div className="flex items-center justify-center mb-3">
-                          <div className="w-20 h-20 rounded-xl bg-white/10 backdrop-blur-sm border-2 border-white/30 flex items-center justify-center group-hover:bg-white/20 transition-all">
-                            <Folder className="w-12 h-12 text-blue-300 group-hover:text-blue-200 transition-colors" strokeWidth={1.5} />
+                      <div className="bg-gradient-to-br from-blue-600/40 to-purple-600/40 p-4 sm:p-6 border-b-2 border-white/20">
+                        <div className="flex items-center justify-center mb-2 sm:mb-3">
+                          <div className="w-14 sm:w-16 md:w-20 h-14 sm:h-16 md:h-20 rounded-lg sm:rounded-xl bg-white/10 backdrop-blur-sm border-2 border-white/30 flex items-center justify-center group-hover:bg-white/20 transition-all">
+                            <Folder className="w-8 sm:w-10 md:w-12 h-8 sm:h-10 md:h-12 text-blue-300 group-hover:text-blue-200 transition-colors" strokeWidth={1.5} />
                           </div>
                         </div>
-                        <h3 className="text-2xl font-bold text-white text-center group-hover:text-blue-200 transition-colors">
+                        <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white text-center group-hover:text-blue-200 transition-colors">
                           Lecture {lecture.lectureNumber}
                         </h3>
                       </div>
                       
                       {/* Lecture Details */}
-                      <div className="p-6">
-                        <p className="text-gray-200 text-sm mb-4 line-clamp-3 min-h-[60px]">
-                          {lecture.transcription?.substring(0, 120)}
-                          {lecture.transcription?.length > 120 ? '...' : ''}
+                      <div className="p-3 sm:p-4 md:p-6">
+                        <p className="text-gray-200 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-3 min-h-[45px] sm:min-h-[60px]">
+                          {lecture.transcription?.substring(0, 100)}
+                          {lecture.transcription?.length > 100 ? '...' : ''}
                         </p>
                         
                         {/* Status Badge */}
-                        <div className="mb-4">
+                        <div className="mb-3 sm:mb-4">
                           {lecture.simpleText || lecture.summary ? (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-500/30 text-green-200 border border-green-400/50">
+                            <span className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-semibold bg-green-500/30 text-green-200 border border-green-400/50">
                               ✓ Processed
                             </span>
                           ) : (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-500/30 text-yellow-200 border border-yellow-400/50">
+                            <span className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-semibold bg-yellow-500/30 text-yellow-200 border border-yellow-400/50">
                               ⏳ Pending
                             </span>
                           )}
                         </div>
                         
                         {/* Metadata */}
-                        <div className="space-y-2 text-xs text-gray-300">
+                        <div className="space-y-1 sm:space-y-2 text-xs text-gray-300">
                           <div className="flex items-center gap-2">
                             <Calendar className="w-3.5 h-3.5 text-blue-400" />
                             <span>{formatDate(lecture.createdAt)}</span>

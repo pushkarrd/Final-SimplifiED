@@ -254,16 +254,16 @@ export default function Login() {
                 </label>
                 <motion.div 
                   whileFocus={{ scale: 1.02 }}
-                  className="relative"
+                  className="relative flex items-center"
                 >
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-blue-400" />
+                  <Mail className="absolute left-4 w-5 h-5 text-blue-400 z-10" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     placeholder="your@email.com"
-                    className={`w-full pl-11 pr-4 py-3 rounded-xl border transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    className={`w-full pl-12 pr-4 py-3 rounded-xl border transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                       isDark 
                         ? 'bg-white/10 border-white/20 text-white placeholder-gray-400' 
                         : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
@@ -283,15 +283,15 @@ export default function Login() {
                 }`}>
                   Password
                 </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-blue-400" />
+                <div className="relative flex items-center">
+                  <Lock className="absolute left-4 w-5 h-5 text-blue-400 z-10" />
                   <input
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     placeholder="••••••••"
-                    className={`w-full pl-11 pr-11 py-3 rounded-xl border transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    className={`w-full pl-12 pr-12 py-3 rounded-xl border transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                       isDark 
                         ? 'bg-white/10 border-white/20 text-white placeholder-gray-400' 
                         : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
@@ -302,7 +302,7 @@ export default function Login() {
                     whileTap={{ scale: 0.9 }}
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className={`absolute right-3 top-1/2 transform -translate-y-1/2 transition-colors ${
+                    className={`absolute right-4 transition-colors z-10 ${
                       isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'
                     }`}
                   >

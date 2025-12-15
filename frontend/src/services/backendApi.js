@@ -1,7 +1,7 @@
 // Backend API service for lecture operations
 // Calls Python FastAPI backend with Ollama integration
 
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = 'http://localhost:8001/api';
 
 /**
  * Create a new lecture with transcription

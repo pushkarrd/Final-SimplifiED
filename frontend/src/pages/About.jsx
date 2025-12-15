@@ -170,13 +170,13 @@ export default function About() {
                 </ul>
               </div>
               
-              {/* Legal */}
+              {/* Team */}
               <div>
-                <h4 className="font-bold mb-4 text-lg">Legal</h4>
+                <h4 className="font-bold mb-4 text-lg">About the Team</h4>
                 <ul className="space-y-2 text-gray-400 text-sm">
-                  <li><a href="#" className="hover:text-white transition">Privacy</a></li>
-                  <li><a href="#" className="hover:text-white transition">Terms</a></li>
-                  <li><a href="#" className="hover:text-white transition">Accessibility</a></li>
+                  <li><span className="text-white font-medium">Pushkar Deshpande</span> - Lead Developer</li>
+                  <li><span className="text-white font-medium">Harsh Singh</span> - UI/UX Designer</li>
+                  <li><span className="text-white font-medium">Code Lunatics</span> - Team</li>
                 </ul>
               </div>
             </div>

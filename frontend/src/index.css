@@ -1,14 +1,55 @@
 @import "tailwindcss";
 
+* {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: "Geom", sans-serif;
   font-optical-sizing: auto;
   font-style: normal;
   transition: font-family 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 body.dyslexic-mode {
   font-family: 'OpenDyslexic', sans-serif !important;
+}
+
+/* Touch-friendly targets - minimum 48px */
+button, a, [role="button"] {
+  min-height: 48px;
+  min-width: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Input fields - touch friendly */
+input, textarea, select {
+  min-height: 48px;
+  font-size: 16px; /* Prevents zoom on iOS */
+  padding: 0.75rem;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  body {
+    font-size: 16px; /* Prevents iOS zoom on input focus */
+  }
+  
+  .touch-target {
+    min-height: 56px;
+    min-width: 56px;
+  }
 }
 
 /* StarBorder animations */
@@ -41,4 +82,3 @@ body.dyslexic-mode {
 .animate-star-movement-top {
   animation: star-movement-top linear infinite alternate;
 }
-

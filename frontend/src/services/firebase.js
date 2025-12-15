@@ -10,15 +10,22 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 // Firebase configuration object
-// Keys: apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId
+// Keys loaded from environment variables (see .env file)
 const firebaseConfig = {
-  apiKey: "AIzaSyAq0Nm9ce87fMJCbcGecKRl46ZxttVm9MU",
-  authDomain: "simplified-code-lunatics.firebaseapp.com",
-  projectId: "simplified-code-lunatics",
-  storageBucket: "simplified-code-lunatics.firebasestorage.app",
-  messagingSenderId: "349702057262",
-  appId: "1:349702057262:web:c331afe0e6e6c2c1cc5ebf"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
+
+// Validate Firebase configuration
+if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+  console.error(
+    '⚠️ Firebase configuration incomplete! Check your .env file has VITE_FIREBASE_* variables.'
+  );
+}
 
 // Initialize Firebase app with config
 const app = initializeApp(firebaseConfig);

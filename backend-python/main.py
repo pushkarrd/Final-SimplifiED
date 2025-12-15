@@ -58,20 +58,58 @@ async def root():
 async def health_check():
     return {"status": "ok", "ollama_model": OLLAMA_MODEL}
 
-def generate_with_ollama(prompt: str, system: str = None) -> str:
-    """Generate text using Ollama"""
+def chunk_text(text: str, max_chunk_size: int = 500) -> list:
+    """Split text into smaller chunks for faster processing"""
+    sentences = text.replace("?", ".").replace("!", ".").split(".")
+    sentences = [s.strip() for s in sentences if s.strip()]
+    
+    chunks = []
+    current_chunk = []
+    current_length = 0
+    
+    for sentence in sentences:
+        sentence_length = len(sentence)
+        if current_length + sentence_length > max_chunk_size and current_chunk:
+            chunks.append(". ".join(current_chunk) + ".")
+            current_chunk = [sentence]
+            current_length = sentence_length
+        else:
+            current_chunk.append(sentence)
+            current_length += sentence_length
+    
+    if current_chunk:
+        chunks.append(". ".join(current_chunk) + ".")
+    
+    return chunks
+
+def generate_with_ollama(prompt: str, system: str = None, stream: bool = False) -> str:
+    """Generate text using Ollama with optimized settings"""
     try:
         messages = []
         if system:
             messages.append({"role": "system", "content": system})
         messages.append({"role": "user", "content": prompt})
         
+        # Optimized Ollama parameters for faster generation
         response = ollama.chat(
             model=OLLAMA_MODEL,
             messages=messages,
-            options={"temperature": 0.7}
+            stream=stream,
+            options={
+                "temperature": 0.5,  # Lower temperature = faster, more focused responses
+                "top_k": 40,  # Limit vocabulary for faster generation
+                "top_p": 0.9,  # Nucleus sampling
+                "num_predict": 500,  # Maximum tokens to generate (prevents long outputs)
+            }
         )
-        return response['message']['content']
+        
+        if stream:
+            result = ""
+            for chunk in response:
+                result += chunk['message']['content']
+            return result
+        else:
+            return response['message']['content']
     except Exception as e:
         print(f"Ollama error: {e}")
         raise HTTPException(status_code=500, detail=f"Ollama processing failed: {str(e)}")
@@ -135,7 +173,7 @@ async def get_latest_lecture(user_id: str):
 
 @app.post("/api/lectures/{lecture_id}/process")
 async def process_lecture(lecture_id: str):
-    """Process lecture transcription through Ollama to generate all outputs in parallel"""
+    """Process lecture transcription through Ollama with chunking for faster processing"""
     try:
         # Get the lecture
         doc = db.collection("lectures").document(lecture_id).get()
@@ -148,74 +186,85 @@ async def process_lecture(lecture_id: str):
         if not transcription:
             raise HTTPException(status_code=400, detail="No transcription to process")
         
-        print(f"Processing lecture {lecture_id} in parallel...")
+        print(f"🚀 Processing lecture {lecture_id}...")
+        start_time = time.time()
         
-        # Import asyncio for parallel processing
-        import asyncio
+        # Chunk the transcription for faster processing
+        chunks = chunk_text(transcription, max_chunk_size=600)
+        print(f"📊 Split into {len(chunks)} chunks for processing")
+        
         from concurrent.futures import ThreadPoolExecutor
         
-        # Define all prompts
-        breakdown_prompt = f"""Break down this text by splitting EVERY word into syllables using hyphens. Keep the sentence structure intact.
+        # ⚡ OPTIMIZED PROMPTS - SHORTER = FASTER
+        breakdown_prompt = f"""Break down by splitting words into syllables with hyphens. Keep sentences intact.
 
 Example: "Photosynthesis is the process" → "Pho-to-syn-the-sis is the pro-cess"
 
-Rules:
-- Split EVERY word into syllables with hyphens
-- Keep punctuation and capitalization
-- Maintain the original sentence flow
-- Short words (1-2 syllables) can stay as is if obvious
+Text to process:
+{transcription}
 
-Transcription: {transcription}
-
-Syllable breakdown:"""
+Output only the syllable breakdown, no explanations:"""
         
-        steps_prompt = f"""Break down this lecture into clear, numbered steps. Each step should be action-oriented, easy to follow, and in logical order. Keep it concise.
+        steps_prompt = f"""Break this lecture into clear, numbered steps (max 5-7 steps). Each step should be concise and actionable.
 
-Transcription: {transcription}
+Text:
+{transcription}
 
-Step-by-step breakdown:"""
+Output only the numbered steps, no extra text:"""
         
-        mindmap_prompt = f"""Create a BRIEF text-based mind map. Use ONLY the most important points:
+        mindmap_prompt = f"""Create a brief mind map with main topic and 3-4 key points only.
 
+Text:
+{transcription}
+
+Format:
 Main Topic
-├─ Key Point 1
-├─ Key Point 2
-└─ Key Point 3
+├─ Point 1
+├─ Point 2
+└─ Point 3
 
-Keep it SHORT - maximum 5-7 points total. Be concise.
-
-Transcription: {transcription}
-
-Brief mind map:"""
+Keep it short:"""
         
-        summary_prompt = f"""Provide a concise 3-4 sentence summary with main topic, key points, and conclusion.
+        summary_prompt = f"""Summarize in 2-3 sentences: main topic, key points, and conclusion.
 
-Transcription: {transcription}
+Text:
+{transcription}
 
 Summary:"""
         
-        # Function to run Ollama in thread pool
-        def generate_async(prompt: str, system: str):
-            return generate_with_ollama(prompt, system)
+        print("⚙️ Starting parallel processing of 4 outputs...")
         
-        # Execute all 4 prompts in parallel using ThreadPoolExecutor
-        loop = asyncio.get_event_loop()
+        # Use ThreadPoolExecutor for parallel processing (simpler, no asyncio issues)
         with ThreadPoolExecutor(max_workers=4) as executor:
-            tasks = [
-                loop.run_in_executor(executor, generate_async, breakdown_prompt, 
-                    "You are an expert in breaking words into syllables for reading assistance."),
-                loop.run_in_executor(executor, generate_async, steps_prompt,
-                    "You are an expert educator who creates clear, sequential learning materials."),
-                loop.run_in_executor(executor, generate_async, mindmap_prompt,
-                    "You are an expert in creating brief, focused mind maps. Be extremely concise."),
-                loop.run_in_executor(executor, generate_async, summary_prompt,
-                    "You are an expert in creating clear, concise academic summaries.")
-            ]
+            breakdown_future = executor.submit(
+                generate_with_ollama, 
+                breakdown_prompt,
+                "Break words into syllables. Output only the result."
+            )
+            steps_future = executor.submit(
+                generate_with_ollama,
+                steps_prompt,
+                "Create numbered steps. Be concise."
+            )
+            mindmap_future = executor.submit(
+                generate_with_ollama,
+                mindmap_prompt,
+                "Create a brief mind map. Keep it very short."
+            )
+            summary_future = executor.submit(
+                generate_with_ollama,
+                summary_prompt,
+                "Write a 2-3 sentence summary."
+            )
             
-            results = await asyncio.gather(*tasks)
-            breakdown_text, detailed_steps, mind_map, summary = results
+            # Wait for all to complete
+            breakdown_text = breakdown_future.result()
+            detailed_steps = steps_future.result()
+            mind_map = mindmap_future.result()
+            summary = summary_future.result()
         
-        print("All processing complete! Updating Firestore...")
+        elapsed_time = time.time() - start_time
+        print(f"✅ Processing complete in {elapsed_time:.1f} seconds!")
         
         # Update Firestore
         update_data = {
@@ -223,24 +272,26 @@ Summary:"""
             "detailedSteps": detailed_steps,
             "mindMap": mind_map,
             "summary": summary,
-            "updatedAt": datetime.now()
+            "updatedAt": datetime.now(),
+            "processingTime": elapsed_time
         }
         
         db.collection("lectures").document(lecture_id).update(update_data)
         
-        print("Done!")
+        print("Done! Saved to Firestore.")
         return {
             "id": lecture_id,
             "simpleText": breakdown_text,
             "detailedSteps": detailed_steps,
             "mindMap": mind_map,
-            "summary": summary
+            "summary": summary,
+            "processingTime": elapsed_time
         }
         
     except HTTPException:
         raise
     except Exception as e:
-        print(f"Error processing lecture: {e}")
+        print(f"❌ Error processing lecture: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.patch("/api/lectures/{lecture_id}")

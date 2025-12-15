@@ -415,20 +415,20 @@ export default function LecturePage() {
       <Navbar />
 
       {/* Main Content */}
-      <div className="relative z-10 min-h-screen px-4 py-8">
-        <div className="max-w-7xl mx-auto">
+      <div className="relative z-10 min-h-screen px-3 sm:px-4 md:px-6 lg:px-8 py-6 md:py-8">
+        <div className="w-full mx-auto max-w-7xl">
           {/* Header */}
           <motion.div 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8 flex justify-between items-center"
+            className="mb-6 md:mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
           >
             <div>
-              <h1 className={`text-4xl md:text-5xl font-black mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              <h1 className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 📚 New Lecture
               </h1>
-              <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                Record your lecture and get AI-powered transcription and simplification
+              <p className={`text-base sm:text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                Record your lecture and get AI-powered transcription
               </p>
             </div>
             {/* Delete Button */}
@@ -437,14 +437,14 @@ export default function LecturePage() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleClearLecture}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+                className={`flex items-center gap-2 px-3 sm:px-4 py-2 md:py-3 rounded-lg font-semibold transition-all flex-shrink-0 touch-target ${
                   isDark 
                     ? 'bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/50' 
                     : 'bg-red-100 hover:bg-red-200 text-red-700 border border-red-300'
                 }`}
               >
-                <Trash2 className="w-5 h-5" />
-                Delete Lecture
+                <Trash2 className="w-4 sm:w-5 h-4 sm:h-5" />
+                <span className="hidden sm:inline">Delete</span>
               </motion.button>
             )}
           </motion.div>
@@ -463,13 +463,14 @@ export default function LecturePage() {
             </motion.div>
           )}
 
-          {/* Side-by-Side Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Left: Audio Recorder */}
+          {/* Side-by-Side Layout - Stack on mobile */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-6">
+            {/* Left: Audio Recorder - 1/4 width */}
             <motion.div 
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
+              className="lg:col-span-1"
             >
               <AudioRecorder 
                 onRecordingComplete={handleRecordingComplete}
@@ -483,19 +484,19 @@ export default function LecturePage() {
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
-              className={`backdrop-blur-md rounded-3xl shadow-2xl border-2 overflow-hidden ${
+              className={`backdrop-blur-md rounded-3xl shadow-2xl border-2 overflow-hidden lg:col-span-3 ${
                 isDark 
                   ? 'bg-white/10 border-white/20' 
                   : 'bg-white/70 border-white/40'
               }`}
             >
               {/* Tab Headers */}
-              <div className={`flex overflow-x-auto border-b ${isDark ? 'border-white/20' : 'border-gray-300'}`}>
+              <div className={`flex gap-0 overflow-x-auto scrollbar-hide border-b ${isDark ? 'border-white/20' : 'border-gray-300'}`}>
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex-1 min-w-fit px-4 py-4 text-sm font-semibold transition-all whitespace-nowrap ${
+                    className={`flex-shrink-0 min-w-max px-2 sm:px-3 md:px-4 py-3 md:py-4 text-xs sm:text-sm font-semibold transition-all whitespace-nowrap touch-target ${
                       activeTab === tab.id
                         ? isDark
                           ? 'bg-white/20 text-white border-b-2 border-blue-400'
@@ -505,14 +506,14 @@ export default function LecturePage() {
                           : 'text-gray-600 hover:bg-white/50'
                     }`}
                   >
-                    <span className="mr-2">{tab.icon}</span>
-                    {tab.label}
+                    <span className="mr-1">{tab.icon}</span>
+                    <span className="hidden sm:inline">{tab.label}</span>
                   </button>
                 ))}
               </div>
 
               {/* Tab Content */}
-              <div className="p-6 max-h-[600px] overflow-y-auto">
+              <div className="p-3 sm:p-4 md:p-6 max-h-[500px] sm:max-h-[600px] overflow-y-auto">
                 {renderTabContent()}
               </div>
             </motion.div>

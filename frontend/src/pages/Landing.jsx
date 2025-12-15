@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/layout/Navbar';
 import Button from '../components/common/Button';
 import Silk from '../components/common/Silk';
-import { Mic, Bot, BookOpen, Accessibility, Sparkles, Download } from 'lucide-react';
+import { Mic, Bot, BookOpen, Accessibility, Sparkles, Download, Linkedin, Instagram } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { motion, useInView } from 'framer-motion';
@@ -444,11 +444,355 @@ export default function Landing() {
           </motion.div>
         </div>
       </section>
+
+      {/* Team Section */}
+      <section className="relative py-24 md:py-32 px-6 sm:px-8 md:px-12 overflow-hidden transition-colors duration-300">
+        <div className="relative z-10 max-w-6xl mx-auto">
+          {/* Section Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="text-center mb-16 md:mb-20"
+          >
+            <h2 className={`text-4xl sm:text-5xl md:text-6xl font-black mb-6 leading-tight drop-shadow-lg ${
+              isDark ? 'text-white' : 'text-gray-900'
+            }`}>
+              Meet Our Team
+            </h2>
+            <p className={`text-lg md:text-xl max-w-3xl mx-auto ${
+              isDark ? 'text-gray-100' : 'text-gray-700'
+            }`}>
+              Passionate developers and designers creating SimplifiED to make education accessible for everyone.
+            </p>
+          </motion.div>
+
+          {/* Team Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+            {/* Team Member 1 - Pushkar */}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              whileHover={{ scale: 1.05 }}
+              className={`group relative p-6 md:p-8 rounded-2xl transition-all duration-300 backdrop-blur-sm shadow-lg hover:shadow-2xl border-2 overflow-hidden ${
+                isDark 
+                  ? 'bg-transparent hover:bg-white/10 border-white/20 hover:border-white/30' 
+                  : 'bg-transparent hover:bg-white/50 border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 via-transparent to-purple-400/20 animate-pulse"></div>
+              </div>
+
+              <div className="relative z-10">
+                {/* Name */}
+                <h3 className={`text-2xl md:text-xl font-bold mb-2 whitespace-nowrap ${
+                  isDark ? 'text-white' : 'text-gray-900'
+                }`}>
+                  Pushkar R Deshpande
+                </h3>
+
+                {/* Role */}
+                <p className={`text-sm md:text-base font-semibold mb-1 ${
+                  isDark ? 'text-blue-300' : 'text-blue-600'
+                }`}>
+                  Team Lead·Frontend Developer
+                </p>
+
+                {/* Designation */}
+                <p className={`text-xs md:text-sm mb-4 ${
+                  isDark ? 'text-gray-300' : 'text-gray-600'
+                }`}>
+                  UI/UX Design
+                </p>
+
+                {/* College Info */}
+                <p className={`text-xs md:text-sm mb-6 pb-4 border-b ${
+                  isDark ? 'text-gray-400 border-white/10' : 'text-gray-500 border-gray-300'
+                }`}>
+                  3rd Sem EIE, BIT Bangalore
+                </p>
+
+                {/* Social Links */}
+                <div className="flex gap-3">
+                  <a
+                    href="https://www.linkedin.com/in/pushkar-r-deshpande-510177334?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`p-2 rounded-lg transition-all duration-300 ${
+                      isDark 
+                        ? 'bg-white/10 hover:bg-blue-500/30 text-white' 
+                        : 'bg-gray-200 hover:bg-blue-500/30 text-gray-900'
+                    }`}
+                    title="LinkedIn"
+                  >
+                    <Linkedin className="w-5 h-5" />
+                  </a>
+                  <a
+                    href="https://www.instagram.com/pushkar__deshpande?igsh=MWdwbmlwcDF4amUwcg=="
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`p-2 rounded-lg transition-all duration-300 ${
+                      isDark 
+                        ? 'bg-white/10 hover:bg-pink-500/30 text-white' 
+                        : 'bg-gray-200 hover:bg-pink-500/30 text-gray-900'
+                    }`}
+                    title="Instagram"
+                  >
+                    <Instagram className="w-5 h-5" />
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Team Member 2 - Hemsagar */}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              whileHover={{ scale: 1.05 }}
+              className={`group relative p-6 md:p-8 rounded-2xl transition-all duration-300 backdrop-blur-sm shadow-lg hover:shadow-2xl border-2 overflow-hidden ${
+                isDark 
+                  ? 'bg-transparent hover:bg-white/10 border-white/20 hover:border-white/30' 
+                  : 'bg-transparent hover:bg-white/50 border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-br from-green-400/20 via-transparent to-teal-400/20 animate-pulse"></div>
+              </div>
+
+              <div className="relative z-10">
+                {/* Name */}
+                <h3 className={`text-2xl md:text-xl font-bold mb-2 ${
+                  isDark ? 'text-white' : 'text-gray-900'
+                }`}>
+                  Hemsagar B C
+                </h3>
+
+                {/* Role */}
+                <p className={`text-sm md:text-base font-semibold mb-1 ${
+                  isDark ? 'text-green-300' : 'text-green-600'
+                }`}>
+                  Backend Developer
+                </p>
+
+                {/* Designation */}
+                <p className={`text-xs md:text-sm mb-4 ${
+                  isDark ? 'text-gray-300' : 'text-gray-600'
+                }`}>
+                  Backend Development
+                </p>
+
+                {/* College Info */}
+                <p className={`text-xs md:text-sm mb-6 pb-4 border-b ${
+                  isDark ? 'text-gray-400 border-white/10' : 'text-gray-500 border-gray-300'
+                }`}>
+                  3rd Sem EIE, BIT Bangalore
+                </p>
+
+                {/* Social Links */}
+                <div className="flex gap-3">
+                  <a
+                    href="https://www.linkedin.com/in/hemsagar-b-c-b2610a318?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`p-2 rounded-lg transition-all duration-300 ${
+                      isDark 
+                        ? 'bg-white/10 hover:bg-blue-500/30 text-white' 
+                        : 'bg-gray-200 hover:bg-blue-500/30 text-gray-900'
+                    }`}
+                    title="LinkedIn"
+                  >
+                    <Linkedin className="w-5 h-5" />
+                  </a>
+                  <a
+                    href="https://www.instagram.com/hemsagar_36?igsh=dWcxa3pteG5kcWdr"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`p-2 rounded-lg transition-all duration-300 ${
+                      isDark 
+                        ? 'bg-white/10 hover:bg-pink-500/30 text-white' 
+                        : 'bg-gray-200 hover:bg-pink-500/30 text-gray-900'
+                    }`}
+                    title="Instagram"
+                  >
+                    <Instagram className="w-5 h-5" />
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Team Member 3 - V S Kiran */}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              whileHover={{ scale: 1.05 }}
+              className={`group relative p-6 md:p-8 rounded-2xl transition-all duration-300 backdrop-blur-sm shadow-lg hover:shadow-2xl border-2 overflow-hidden ${
+                isDark 
+                  ? 'bg-transparent hover:bg-white/10 border-white/20 hover:border-white/30' 
+                  : 'bg-transparent hover:bg-white/50 border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 via-transparent to-pink-400/20 animate-pulse"></div>
+              </div>
+
+              <div className="relative z-10">
+                {/* Name */}
+                <h3 className={`text-2xl md:text-xl font-bold mb-2 ${
+                  isDark ? 'text-white' : 'text-gray-900'
+                }`}>
+                  V S Kiran
+                </h3>
+
+                {/* Role */}
+                <p className={`text-sm md:text-base font-semibold mb-1 ${
+                  isDark ? 'text-purple-300' : 'text-purple-600'
+                }`}>
+                  Feature Contributor
+                </p>
+
+                {/* Designation */}
+                <p className={`text-xs md:text-sm mb-4 ${
+                  isDark ? 'text-gray-300' : 'text-gray-600'
+                }`}>
+                  Feature Development
+                </p>
+
+                {/* College Info */}
+                <p className={`text-xs md:text-sm mb-6 pb-4 border-b ${
+                  isDark ? 'text-gray-400 border-white/10' : 'text-gray-500 border-gray-300'
+                }`}>
+                  3rd Sem EIE, BIT Bangalore
+                </p>
+
+                {/* Social Links */}
+                <div className="flex gap-3">
+                  <a
+                    href="https://www.linkedin.com/in/vs-kiran-16b178394?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`p-2 rounded-lg transition-all duration-300 ${
+                      isDark 
+                        ? 'bg-white/10 hover:bg-blue-500/30 text-white' 
+                        : 'bg-gray-200 hover:bg-blue-500/30 text-gray-900'
+                    }`}
+                    title="LinkedIn"
+                  >
+                    <Linkedin className="w-5 h-5" />
+                  </a>
+                  <a
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`p-2 rounded-lg transition-all duration-300 ${
+                      isDark 
+                        ? 'bg-white/10 hover:bg-pink-500/30 text-white' 
+                        : 'bg-gray-200 hover:bg-pink-500/30 text-gray-900'
+                    }`}
+                    title="Instagram"
+                  >
+                    <Instagram className="w-5 h-5" />
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Team Member 4 - Anurag Rao */}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              whileHover={{ scale: 1.05 }}
+              className={`group relative p-6 md:p-8 rounded-2xl transition-all duration-300 backdrop-blur-sm shadow-lg hover:shadow-2xl border-2 overflow-hidden ${
+                isDark 
+                  ? 'bg-transparent hover:bg-white/10 border-white/20 hover:border-white/30' 
+                  : 'bg-transparent hover:bg-white/50 border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-400/20 via-transparent to-red-400/20 animate-pulse"></div>
+              </div>
+
+              <div className="relative z-10">
+                {/* Name */}
+                <h3 className={`text-2xl md:text-xl font-bold mb-2 ${
+                  isDark ? 'text-white' : 'text-gray-900'
+                }`}>
+                  Anurag Rao
+                </h3>
+
+                {/* Role */}
+                <p className={`text-sm md:text-base font-semibold mb-1 ${
+                  isDark ? 'text-orange-300' : 'text-orange-600'
+                }`}>
+                  Feature Contributor
+                </p>
+
+                {/* Designation */}
+                <p className={`text-xs md:text-sm mb-4 ${
+                  isDark ? 'text-gray-300' : 'text-gray-600'
+                }`}>
+                  Feature Development
+                </p>
+
+                {/* College Info */}
+                <p className={`text-xs md:text-sm mb-6 pb-4 border-b ${
+                  isDark ? 'text-gray-400 border-white/10' : 'text-gray-500 border-gray-300'
+                }`}>
+                  NITK Surathkal
+                </p>
+
+                {/* Social Links */}
+                <div className="flex gap-3">
+                  <a
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`p-2 rounded-lg transition-all duration-300 ${
+                      isDark 
+                        ? 'bg-white/10 hover:bg-blue-500/30 text-white' 
+                        : 'bg-gray-200 hover:bg-blue-500/30 text-gray-900'
+                    }`}
+                    title="LinkedIn"
+                  >
+                    <Linkedin className="w-5 h-5" />
+                  </a>
+                  <a
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`p-2 rounded-lg transition-all duration-300 ${
+                      isDark 
+                        ? 'bg-white/10 hover:bg-pink-500/30 text-white' 
+                        : 'bg-gray-200 hover:bg-pink-500/30 text-gray-900'
+                    }`}
+                    title="Instagram"
+                  >
+                    <Instagram className="w-5 h-5" />
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
       
       {/* Footer */}
       <footer className={`${isDark ? 'bg-gray-950' : 'bg-gray-900'} text-white py-12 md:py-16 px-6 sm:px-8 md:px-12 transition-colors duration-300`}>
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 mb-12">
             {/* Brand */}
             <div>
               <h3 className="text-2xl font-black mb-4">SimplifiED</h3>
@@ -457,39 +801,21 @@ export default function Landing() {
               </p>
             </div>
             
-            {/* Links */}
-            <div>
-              <h4 className="font-bold mb-4 text-lg">Product</h4>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li><a href="#" className="hover:text-white transition">Features</a></li>
-                <li><a href="#" className="hover:text-white transition">Pricing</a></li>
-                <li><a href="#" className="hover:text-white transition">Security</a></li>
-              </ul>
-            </div>
-            
-            {/* Company */}
+            {/* Company - About Team */}
             <div>
               <h4 className="font-bold mb-4 text-lg">Company</h4>
               <ul className="space-y-2 text-gray-400 text-sm">
-                <li><a href="#" className="hover:text-white transition">About</a></li>
-                <li><a href="#" className="hover:text-white transition">Blog</a></li>
-                <li><a href="#" className="hover:text-white transition">Contact</a></li>
-              </ul>
-            </div>
-            
-            {/* Legal */}
-            <div>
-              <h4 className="font-bold mb-4 text-lg">Legal</h4>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li><a href="#" className="hover:text-white transition">Privacy</a></li>
-                <li><a href="#" className="hover:text-white transition">Terms</a></li>
-                <li><a href="#" className="hover:text-white transition">Accessibility</a></li>
+                <li>
+                  <a href="#team" className="hover:text-white transition">
+                    About (Meet Our Team)
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
           
           <div className={`border-t ${isDark ? 'border-gray-800' : 'border-gray-800'} pt-8 text-center text-gray-400 text-sm`}>
-            <p>Made with ❤️ by Code Lunatics • SimplifiED © 2024. All rights reserved.</p>
+            <p>© 2025 Code Lunatics. All rights reserved.</p>
           </div>
         </div>
       </footer>

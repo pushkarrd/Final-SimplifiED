@@ -21,35 +21,35 @@ export default function Navbar() {
   const { currentUser, logout } = useAuth();
   
   return (
-    <nav className="sticky top-0 z-50 bg-gray-900/95 backdrop-blur-md border-b border-gray-800 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+    <nav className="sticky top-0 z-50 bg-gray-900/95 backdrop-blur-md border-b border-gray-800 transition-colors duration-300 touch-none">
+      <div className="w-full px-3 sm:px-4 md:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16 md:h-20">
           {/* Logo section */}
-          <Link to="/" className="flex items-center gap-2">
-            <span className="text-2xl font-black text-white flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
               
               <span className="bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">SimplifiED</span>
             </span>
           </Link>
           
           {/* Desktop navigation links */}
-          <div className="hidden md:flex items-center gap-8">
-            <Link to="/" className="text-gray-300 hover:text-white font-semibold transition-colors">
+          <div className="hidden lg:flex items-center gap-6 xl:gap-8">
+            <Link to="/" className="text-gray-300 hover:text-white font-semibold transition-colors text-sm lg:text-base">
               Home
             </Link>
-            <a href="/#features" className="text-gray-300 hover:text-white font-semibold transition-colors">
+            <a href="/#features" className="text-gray-300 hover:text-white font-semibold transition-colors text-sm lg:text-base">
               Features
             </a>
-            <Link to="/dashboard" className="text-gray-300 hover:text-white font-semibold transition-colors">
+            <Link to="/dashboard" className="text-gray-300 hover:text-white font-semibold transition-colors text-sm lg:text-base">
               Dashboard
             </Link>
-            <Link to="/about" className="text-gray-300 hover:text-white font-semibold transition-colors">
+            <Link to="/about" className="text-gray-300 hover:text-white font-semibold transition-colors text-sm lg:text-base">
               About
             </Link>
           </div>
           
           {/* Sign in button or user menu */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-3 xl:gap-4">
             {!currentUser ? (
               <>
                 <Link to="/login">
@@ -119,8 +119,9 @@ export default function Navbar() {
           {/* Mobile menu button */}
           {/* Shows on mobile, hidden on desktop */}
           <button 
-            className={`md:hidden ${isDark ? 'text-gray-300' : 'text-textDark'}`}
+            className={`lg:hidden p-2 -mr-2 ${isDark ? 'text-gray-300 hover:text-white' : 'text-textDark hover:text-primary'}`}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle mobile menu"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -132,31 +133,28 @@ export default function Navbar() {
       {/* Mobile menu */}
       {/* Shows when mobileMenuOpen is true */}
       {mobileMenuOpen && (
-        <div className={`md:hidden ${isDark ? 'bg-gray-800 border-t border-gray-700' : 'bg-white border-t'}`}>
-          <div className="px-4 py-4 space-y-3">
-            <Link to="/" className={`block ${isDark ? 'text-gray-300 hover:text-white' : 'text-textDark hover:text-primary'} font-dyslexic text-lg`}>
+        <div className={`lg:hidden ${isDark ? 'bg-gray-800/95 border-t border-gray-700' : 'bg-white/95 border-t'}`}>
+          <div className="px-3 sm:px-4 py-4 space-y-3">
+            <Link to="/" onClick={() => setMobileMenuOpen(false)} className={`block py-2 px-2 rounded text-base sm:text-lg ${isDark ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-textDark hover:text-primary hover:bg-gray-100'} font-semibold transition-colors`}>
               Home
             </Link>
-            <a href="/#features" className={`block ${isDark ? 'text-gray-300 hover:text-white' : 'text-textDark hover:text-primary'} font-dyslexic text-lg`}>
+            <a href="/#features" onClick={() => setMobileMenuOpen(false)} className={`block py-2 px-2 rounded text-base sm:text-lg ${isDark ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-textDark hover:text-primary hover:bg-gray-100'} font-semibold transition-colors`}>
               Features
             </a>
-            <Link to="/dashboard" className={`block ${isDark ? 'text-gray-300 hover:text-white' : 'text-textDark hover:text-primary'} font-dyslexic text-lg`}>
+            <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className={`block py-2 px-2 rounded text-base sm:text-lg ${isDark ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-textDark hover:text-primary hover:bg-gray-100'} font-semibold transition-colors`}>
               Dashboard
             </Link>
-            <Link to="/about" className={`block ${isDark ? 'text-gray-300 hover:text-white' : 'text-textDark hover:text-primary'} font-dyslexic text-lg`}>
+            <Link to="/about" onClick={() => setMobileMenuOpen(false)} className={`block py-2 px-2 rounded text-base sm:text-lg ${isDark ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-textDark hover:text-primary hover:bg-gray-100'} font-semibold transition-colors`}>
               About
             </Link>
-            <Link to="/lecture" className={`block ${isDark ? 'text-gray-300 hover:text-white' : 'text-textDark hover:text-primary'} font-dyslexic text-lg`}>
-              New Lecture
-            </Link>
-            <div className="pt-3 border-t" style={{ borderColor: isDark ? '#4B5563' : '#e5e7eb' }}>
-              <Link to="/login" className="block mb-2">
-                <button className="w-full px-6 py-2 rounded-lg font-semibold text-white bg-gray-700 hover:bg-gray-600 transition-colors">
+            <div className="pt-3 mt-3 border-t" style={{ borderColor: isDark ? '#4B5563' : '#e5e7eb' }}>
+              <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="block mb-2">
+                <button className="w-full px-4 py-3 rounded-lg font-semibold text-white bg-gray-700 hover:bg-gray-600 transition-colors touch-target">
                   Sign In
                 </button>
               </Link>
-              <Link to="/signup" className="block">
-                <button className="w-full px-6 py-2 rounded-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transition-all">
+              <Link to="/signup" onClick={() => setMobileMenuOpen(false)} className="block">
+                <button className="w-full px-4 py-3 rounded-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transition-all touch-target">
                   Get Started
                 </button>
               </Link>
