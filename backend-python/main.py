@@ -21,10 +21,18 @@ load_dotenv()
 # Initialize FastAPI
 app = FastAPI(title="SimplifiED Backend")
 
-# Configure CORS
+# Configure CORS - Allow frontend origins
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+allowed_origins = [
+    "http://localhost:5173",
+    "http://localhost:5174", 
+    "http://localhost:5175",
+    FRONTEND_URL  # Production frontend URL from environment
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -47,10 +55,10 @@ class LectureUpdate(BaseModel):
     mindMap: str = None
     summary: str = None
 
-# Grok AI API Configuration
-GROK_API_KEY = os.getenv("GROK_API_KEY", "")  # Load from environment variable
-GROK_API_URL = "https://api.x.ai/v1/chat/completions"
-GROK_MODEL = "grok-4-latest"
+# GROQ AI API Configuration
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")  # Load from environment variable
+GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_MODEL = "llama-3.3-70b-versatile"  # Updated to current model
 
 @app.get("/")
 async def root():
@@ -58,7 +66,7 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    return {"status": "ok", "grok_model": GROK_MODEL}
+    return {"status": "ok", "groq_model": GROQ_MODEL}
 
 def chunk_text(text: str, max_chunk_size: int = 500) -> list:
     """Split text into smaller chunks for faster processing"""
@@ -84,8 +92,8 @@ def chunk_text(text: str, max_chunk_size: int = 500) -> list:
     
     return chunks
 
-def generate_with_grok(prompt: str, system: str = None, stream: bool = False) -> str:
-    """Generate text using Grok AI with optimized settings"""
+def generate_with_groq(prompt: str, system: str = None, stream: bool = False) -> str:
+    """Generate text using GROQ AI with optimized settings"""
     try:
         messages = []
         if system:
@@ -94,29 +102,32 @@ def generate_with_grok(prompt: str, system: str = None, stream: bool = False) ->
         
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {GROK_API_KEY}"
+            "Authorization": f"Bearer {GROQ_API_KEY}"
         }
         
         payload = {
             "messages": messages,
-            "model": GROK_MODEL,
+            "model": GROQ_MODEL,
             "stream": stream,
             "temperature": 0.3,
-            "max_tokens": 500
+            "max_tokens": 1000
         }
         
-        response = requests.post(GROK_API_URL, headers=headers, json=payload, timeout=30)
-        response.raise_for_status()
+        response = requests.post(GROQ_API_URL, headers=headers, json=payload, timeout=30)
+        
+        if response.status_code != 200:
+            print(f"❌ GROQ API Error {response.status_code}: {response.text}")
+            raise HTTPException(status_code=500, detail=f"GROQ API error: {response.text}")
         
         data = response.json()
         return data['choices'][0]['message']['content']
         
     except requests.exceptions.RequestException as e:
-        print(f"Grok API error: {e}")
-        raise HTTPException(status_code=500, detail=f"Grok processing failed: {str(e)}")
+        print(f"GROQ API error: {e}")
+        raise HTTPException(status_code=500, detail=f"GROQ processing failed: {str(e)}")
     except Exception as e:
         print(f"Error: {e}")
-        raise HTTPException(status_code=500, detail=f"Grok processing failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"GROQ processing failed: {str(e)}")
 
 @app.post("/api/lectures")
 async def create_lecture(lecture: LectureCreate):
@@ -241,22 +252,22 @@ Summary:"""
         # Use ThreadPoolExecutor for parallel processing (simpler, no asyncio issues)
         with ThreadPoolExecutor(max_workers=4) as executor:
             breakdown_future = executor.submit(
-                generate_with_grok, 
+                generate_with_groq, 
                 breakdown_prompt,
                 "Break words into syllables. Output only the result."
             )
             steps_future = executor.submit(
-                generate_with_grok,
+                generate_with_groq,
                 steps_prompt,
                 "Create numbered steps. Be concise."
             )
             mindmap_future = executor.submit(
-                generate_with_grok,
+                generate_with_groq,
                 mindmap_prompt,
                 "Create a brief mind map. Keep it very short."
             )
             summary_future = executor.submit(
-                generate_with_grok,
+                generate_with_groq,
                 summary_prompt,
                 "Write a 2-3 sentence summary."
             )
