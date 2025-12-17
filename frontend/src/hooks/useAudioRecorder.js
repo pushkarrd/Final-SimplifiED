@@ -59,19 +59,33 @@ export default function useAudioRecorder() {
       
       console.log('Microphone access granted:', audioTracks[0].label);
       
-      // Determine best audio format
-      let mimeType = 'audio/webm';
-      if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
-        mimeType = 'audio/webm;codecs=opus';
-      } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
-        mimeType = 'audio/mp4';
+      // Determine best audio format - mobile-friendly priority order
+      let mimeType = '';
+      const formats = [
+        'audio/webm;codecs=opus',  // Chrome desktop/mobile
+        'audio/webm',               // Firefox
+        'audio/mp4',                // Safari desktop/iOS
+        'audio/ogg;codecs=opus',    // Fallback
+        'audio/wav',                // Legacy fallback
+        ''                          // Let browser decide
+      ];
+      
+      for (const format of formats) {
+        if (format === '' || MediaRecorder.isTypeSupported(format)) {
+          mimeType = format;
+          break;
+        }
       }
       
       // Create MediaRecorder with best format
-      const mediaRecorder = new MediaRecorder(stream, { mimeType });
+      const mediaRecorder = mimeType 
+        ? new MediaRecorder(stream, { mimeType })
+        : new MediaRecorder(stream); // Let browser choose
+      
       mediaRecorderRef.current = mediaRecorder;
       
-      console.log('Recording with format:', mimeType);
+      const finalType = mimeType || 'browser-default';
+      console.log('Recording with format:', finalType);
       
       // Handle data available event
       mediaRecorder.ondataavailable = (event) => {
@@ -82,7 +96,9 @@ export default function useAudioRecorder() {
       
       // Handle stop event
       mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: mimeType });
+        console.log('🎙️ Recording stopped. Chunks:', chunksRef.current.length);
+        const blob = new Blob(chunksRef.current, { type: mimeType || 'audio/webm' });
+        console.log('📦 Audio blob created:', blob.size, 'bytes, type:', blob.type);
         setAudioBlob(blob);
         chunksRef.current = [];
       };
@@ -95,6 +111,7 @@ export default function useAudioRecorder() {
       
       // Start recording with 1 second chunks
       mediaRecorder.start(1000);
+      console.log('✅ MediaRecorder started successfully');
       
       // Start duration timer
       timerRef.current = setInterval(() => {
@@ -102,6 +119,7 @@ export default function useAudioRecorder() {
       }, 1000);
       
       setIsRecording(true);
+      console.log('✅ Recording state set to true');
     } catch (err) {
       console.error('Error starting recording:', err);
       
