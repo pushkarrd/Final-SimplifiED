@@ -3,7 +3,7 @@ FastAPI backend with Ollama integration for SimplifiED
 Processes lecture transcriptions using local Ollama LLM
 """
 
-from fastapi import FastAPI, HTTPException, File, UploadFile
+from fastapi import FastAPI, HTTPException, File, UploadFile, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import firebase_admin
@@ -21,18 +21,46 @@ load_dotenv()
 # Initialize FastAPI
 app = FastAPI(title="SimplifiED Backend")
 
-# Configure CORS - Allow frontend origins
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
-allowed_origins = [
-    "http://localhost:5173",
-    "http://localhost:5174", 
-    "http://localhost:5175",
-    FRONTEND_URL  # Production frontend URL from environment
+# Configure CORS - Allow frontend origins (including all Vercel deployments)
+# Vercel creates multiple URLs: production + preview deployments
+# Using regex pattern to allow all Vercel domains
+import re
+
+allowed_origin_patterns = [
+    r"http://localhost:\d+",  # Local development
+    r"https://.*\.vercel\.app",  # All Vercel deployments
+    r"https://.*-pushkarrds-projects\.vercel\.app",  # Your Vercel account
 ]
 
+def is_allowed_origin(origin: str) -> bool:
+    """Check if origin matches allowed patterns"""
+    if not origin:
+        return False
+    for pattern in allowed_origin_patterns:
+        if re.match(pattern, origin):
+            return True
+    return False
+
+# Custom CORS handler
+@app.middleware("http")
+async def cors_handler(request: Request, call_next):
+    origin = request.headers.get("origin", "")
+    
+    response = await call_next(request)
+    
+    # Add CORS headers if origin is allowed
+    if is_allowed_origin(origin):
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Access-Control-Allow-Methods"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+    
+    return response
+
+# Handle preflight requests
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origin_regex=r"https://.*\.vercel\.app|http://localhost:\d+",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
