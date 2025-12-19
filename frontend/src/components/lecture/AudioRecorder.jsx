@@ -33,11 +33,17 @@ export default function AudioRecorder({ onRecordingComplete, onTranscriptionUpda
       console.log('🎤 Web Speech API initialized for:', isMobile ? 'Mobile' : 'Desktop');
 
       recognitionRef.current.onresult = (event) => {
+        console.log('🎤 Speech detected! Results:', event.results.length);
+        
         let finalTranscript = '';
         let interimTranscript = '';
 
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const transcript = event.results[i][0].transcript;
+          const confidence = event.results[i][0].confidence;
+          
+          console.log(`Result ${i}:`, transcript, `(${event.results[i].isFinal ? 'Final' : 'Interim'}, confidence: ${confidence?.toFixed(2) || 'N/A'})`);
+          
           if (event.results[i].isFinal) {
             finalTranscript += transcript + ' ';
           } else {
@@ -48,6 +54,7 @@ export default function AudioRecorder({ onRecordingComplete, onTranscriptionUpda
         // Append final transcript to accumulated ref to persist across restarts
         if (finalTranscript) {
           accumulatedTranscriptRef.current += finalTranscript;
+          console.log('✅ Final transcript added:', finalTranscript);
         }
 
         // Combine accumulated + interim for display
@@ -110,7 +117,14 @@ export default function AudioRecorder({ onRecordingComplete, onTranscriptionUpda
 
       recognitionRef.current.onstart = () => {
         console.log('✅ Speech recognition active and listening...');
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        if (isMobile) {
+          console.log('📱 Mobile device detected - make sure you have internet connection for speech recognition');
+        }
       };
+    } else {
+      console.warn('⚠️ Web Speech API not available on this browser');
+      console.warn('Browser:', navigator.userAgent);
     }
 
     return () => {
@@ -146,14 +160,26 @@ export default function AudioRecorder({ onRecordingComplete, onTranscriptionUpda
     if (recognitionRef.current) {
       setTimeout(() => {
         try {
-          setIsListening(true);
-          recognitionRef.current.start();
-          console.log('🎤 Speech recognition started - speak clearly into your microphone');
+          // Ensure recognition is stopped first (mobile compatibility)
+          try {
+            recognitionRef.current.stop();
+          } catch (e) {
+            // Ignore - might not be running
+          }
+          
+          // Small delay then start
+          setTimeout(() => {
+            setIsListening(true);
+            recognitionRef.current.start();
+            console.log('🎤 Speech recognition started - speak clearly into your microphone');
+            console.log('📱 Device:', /Android/i.test(navigator.userAgent) ? 'Android' : 'Other');
+          }, 100);
         } catch (e) {
-          console.error('Could not start speech recognition:', e.message);
+          console.error('❌ Could not start speech recognition:', e.message);
+          alert('Speech recognition unavailable. Your speech won\'t be transcribed, but audio will be recorded. You can add text manually later.');
           setIsListening(false);
         }
-      }, 200); // Minimal delay for faster response
+      }, 300); // Increased delay for mobile compatibility
     }
   };
   // Handle stop recording
