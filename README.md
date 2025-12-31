@@ -1,126 +1,382 @@
-# 🧠 SimplifiED – AI-Powered Learning Assistant  
-### Making education accessible for students with dyslexia, one lecture at a time.
+<div align="center">
 
-> **SimplifiED** is an AI-powered accessibility-first learning assistant that helps students with **dyslexia and learning difficulties** understand classroom lectures by converting live audio into **simplified, structured, and dyslexia-friendly learning formats** — in real time and with complete privacy.
+# 🎓 SimplifiED
+
+### AI-Powered Learning Assistant for Students with Dyslexia
+
+*Making education accessible, one lecture at a time*
+
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115.5-009688?style=flat&logo=fastapi)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat&logo=react)](https://react.dev/)
+[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.16.1-FF6F00?style=flat&logo=tensorflow)](https://www.tensorflow.org/)
+[![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat&logo=python)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat)](LICENSE)
+[![Stars](https://img.shields.io/github/stars/VTG56/VoiceGuard-AI?style=social)](https://github.com/VTG56/VoiceGuard-AI)
+
+[Features](#-key-features) • [Demo](#-demo) • [Quick Start](#-quick-start) • [Tech Stack](#-technology-stack) • [Team](#-team)
+
+</div>
 
 ---
 
-## 📌 Problem Statement
+## 🧠 Problem Statement
 
-Dyslexia is a **neurodevelopmental learning disorder** that affects a student’s ability to **read, write, process, and comprehend text**, despite normal intelligence.
+**Dyslexia** is a neurodevelopmental learning disorder affecting a student's ability to read, write, process, and comprehend text—despite having normal intelligence.
 
-🔹 **1 in 10 students globally** experience dyslexia or related learning difficulties.  
-🔹 Yet, most educational systems still rely on **text-heavy notes, fast-paced lectures, and single-format teaching**.
-
-### 🚧 Challenges Faced by Dyslexic Students
-- Difficulty reading long and dense text
-- Slower language processing during live lectures
-- No real-time support tailored for dyslexia
-- Limited accessibility beyond font changes
-- Academic disadvantage despite strong conceptual ability
+> 📊 **1 in 10 students** globally experience dyslexia or related learning difficulties
 
 ---
 
 ## 💡 Our Solution
 
-**SimplifiED** bridges this gap by transforming **live classroom lectures** into **multiple dyslexia-accessible formats**, allowing students to learn **in the way that suits their cognitive needs best**.
+**SimplifiED** is an AI-powered learning assistant that converts live classroom lectures into **multiple accessible learning formats** in real time, helping students—especially those with dyslexia—understand concepts in the way that works best for them.
 
-✔ Real-time processing  
-✔ Dyslexia-first design  
-✔ Multi-language support  
-✔ Local AI (no data leakage)  
+### 🔒 Privacy-First Approach
+All processing happens **locally using AI**, ensuring:
+- ✅ Complete data privacy
+- ✅ No cloud dependency
+- ✅ Low cost operation
+- ✅ Offline-friendly usage
 
 ---
 
-## 🎯 Key Features
+## ✨ Key Features
+
+<table>
+<tr>
+<td width="50%">
 
 ### 🎤 Live Lecture Processing
-- Real-time **speech-to-text transcription**
-- Instantly converts spoken lectures into readable content
+- Real-time speech-to-text transcription
+- Instant conversion of spoken lectures
+- Browser-based audio capture
+- Continuous recording support
 
-### 📚 Multiple Accessible Learning Formats
-From a single lecture, SimplifiED generates:
-- **Simple Text** – Dyslexia-friendly simplified explanations  
-- **Detailed Steps** – Step-by-step breakdown of concepts  
-- **Summary** – Concise key takeaways  
-- **Mind Map** – Hierarchical structure for visual understanding  
+</td>
+<td width="50%">
+
+### 📚 Multiple Learning Formats
+From a single lecture, get:
+- **Simple Text** – Dyslexia-friendly explanations
+- **Detailed Steps** – Step-by-step breakdowns
+- **Summary** – Concise key takeaways
+- **Mind Map** – Visual hierarchical structure
+
+</td>
+</tr>
+<tr>
+<td width="50%">
 
 ### ♿ Dyslexia-Friendly Design
-- **OpenDyslexic font** for better readability  
-- Clean spacing and reduced cognitive load  
-- Designed specifically for dyslexic users, not adapted later
+- OpenDyslexic font for readability
+- Clean spacing & reduced cognitive load
+- High contrast color schemes
+- Customizable text sizing
+
+</td>
+<td width="50%">
 
 ### 🌍 Multi-Language Support
-- English  
-- Hindi  
-- Kannada  
+- 🇬🇧 English
+- 🇮🇳 Hindi
+- 🇮🇳 Kannada
+- Easy language switching
+
+</td>
+</tr>
+<tr>
+<td width="50%">
 
 ### 🎨 User-Friendly Interface
-- Dark & Light themes (eye-friendly)
-- Fully mobile responsive (48px+ touch targets)
-- Works seamlessly on **desktop, tablet, and mobile**
+- 🌙 Dark & Light themes
+- 📱 Fully mobile responsive (48px+ touch targets)
+- 💻 Desktop, tablet & mobile support
+- ⚡ Smooth animations with Framer Motion
 
-### 🤖 Local AI Processing (Privacy-First)
-- Uses **Ollama with LLaMA 3.2 (3B)**
-- No API keys required
-- No user data sent to third-party servers
+</td>
+<td width="50%">
 
-### ☁️ Firebase Integration
-- Secure authentication
-- Save and retrieve lecture sessions
+### 🤖 Local AI Processing
+- Uses **Ollama** with **LLaMA 3.2 (3B)**
+- ❌ No API keys required
+- ❌ No third-party data sharing
+- ☁️ Firebase integration for secure storage
+
+</td>
+</tr>
+</table>
 
 ---
 
-## 🏗️ How It Works (High-Level Architecture)
+## 🎬 Demo
 
-1. **Lecture Audio Input**  
-   Live audio is captured directly from the browser
+---
 
-2. **Speech-to-Text Conversion**  
-   Web Speech API converts speech into text
+## 🏗️ How It Works
 
-3. **Local AI Processing**  
-   Ollama (LLaMA 3.2) processes text to generate:
-   - Simplified explanations  
-   - Step-by-step breakdowns  
-   - Summaries  
-   - Mind maps  
+```mermaid
+graph LR
+    A[🎤 Lecture Audio] --> B[🔊 Web Speech API]
+    B --> C[📝 Text Transcription]
+    C --> D[🤖 Ollama LLaMA 3.2]
+    D --> E[📚 AI Processing]
+    E --> F1[✏️ Simple Text]
+    E --> F2[📋 Detailed Steps]
+    E --> F3[📄 Summary]
+    E --> F4[🗺️ Mind Map]
+    F1 & F2 & F3 & F4 --> G[♿ Accessible UI]
+    G --> H[💾 Firebase Storage]
+```
 
-4. **Accessible Frontend Display**  
-   Output is rendered using dyslexia-friendly UI principles
+### Architecture Flow
 
-5. **Data Storage (Optional)**  
-   Lectures are securely stored using Firebase
+1. **Audio Input** – Live audio captured via browser
+2. **Speech-to-Text** – Web Speech API converts audio to text
+3. **AI Processing** – Ollama (LLaMA 3.2) generates multiple formats
+4. **Accessible Display** – Rendered in dyslexia-friendly UI
+5. **Data Storage** – Securely saved with Firebase (optional)
 
 ---
 
 ## 🛠️ Technology Stack
 
+<table>
+<tr>
+<td align="center" width="33%">
+
 ### Frontend
-- **React 19** – UI development  
-- **Vite** – Fast build tool  
-- **Tailwind CSS** – Responsive styling  
-- **Framer Motion** – Animations  
-- **Firebase SDK** – Authentication & storage  
-- **Web Speech API** – Speech recognition  
-- **Lucide React** – Icons  
+![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react)
+![Vite](https://img.shields.io/badge/Vite-Latest-646CFF?style=for-the-badge&logo=vite)
+![Tailwind](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwind-css)
+
+</td>
+<td align="center" width="33%">
 
 ### Backend
-- **Python 3**  
-- **FastAPI** – Backend framework  
-- **Uvicorn** – ASGI server  
-- **Ollama** – Local LLM runtime  
-- **LLaMA 3.2 (3B)** – AI model  
-- **Firebase Admin SDK** – Secure backend access  
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115.5-009688?style=for-the-badge&logo=fastapi)
+![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python)
+![Ollama](https://img.shields.io/badge/Ollama-LLaMA_3.2-000000?style=for-the-badge)
 
-### Accessibility & Fonts
-- **OpenDyslexic** – Dyslexia-friendly font  
-- **Geom** – Default UI font  
+</td>
+<td align="center" width="33%">
+
+### Services
+![Firebase](https://img.shields.io/badge/Firebase-Auth-FFCA28?style=for-the-badge&logo=firebase)
+![Web Speech](https://img.shields.io/badge/Web_Speech-API-4285F4?style=for-the-badge)
+
+</td>
+</tr>
+</table>
+
+#### Detailed Stack
+
+**Frontend**
+- React 19 – UI development
+- Vite – Fast build tool
+- Tailwind CSS – Responsive styling
+- Framer Motion – Smooth animations
+- Lucide React – Icon library
+- Firebase SDK – Authentication & storage
+- Web Speech API – Speech recognition
+
+**Backend**
+- Python 3.9+
+- FastAPI – Modern API framework
+- Uvicorn – ASGI server
+- Ollama – Local LLM runtime
+- LLaMA 3.2 (3B) – AI model
+- Firebase Admin SDK – Backend auth
+
+**Accessibility**
+- OpenDyslexic – Dyslexia-friendly font
+- Geom – Default UI font
 
 ---
 
 ## 🚀 Quick Start
 
+### Prerequisites
+
+- **Node.js** v18+
+- **Python** v3.9+
+- **Ollama** installed
+- **Firebase** account
+
 ### One-Command Start (Windows)
+
 ```powershell
 .\start.ps1
+```
+
+This automatically:
+- ✅ Starts Ollama
+- ✅ Runs FastAPI backend on port 8000
+- ✅ Runs React frontend on port 5174
+
+### Manual Start
+
+#### 1️⃣ Install Dependencies
+
+**Backend**
+```bash
+cd backend-python
+pip install -r requirements.txt
+```
+
+**Frontend**
+```bash
+cd frontend
+npm install
+```
+
+**Ollama Model**
+```bash
+ollama pull llama3.2:3b
+```
+
+#### 2️⃣ Start Services
+
+**Backend**
+```bash
+cd backend-python
+python -m uvicorn main:app --port 8000
+```
+
+**Frontend**
+```bash
+cd frontend
+npm run dev
+```
+
+#### 3️⃣ Access Application
+
+```
+🌐 Frontend: http://localhost:5174
+🔧 Backend:  http://localhost:8000
+📚 API Docs: http://localhost:8000/docs
+```
+
+---
+
+## 📁 Project Structure
+
+```
+simplifiED/
+├── 📂 backend-python/          # FastAPI backend with Ollama
+│   ├── main.py                 # API endpoints & AI processing
+│   ├── requirements.txt        # Python dependencies
+│   ├── .env.example           # Environment template
+│   └── serviceAccountKey.json # Firebase credentials (gitignored)
+│
+├── 📂 frontend/                # React frontend with Vite
+│   ├── 📂 src/
+│   │   ├── 📂 components/     # Reusable components
+│   │   │   ├── common/        # UI components
+│   │   │   └── lecture/       # Lecture-specific components
+│   │   ├── 📂 pages/          # Main pages
+│   │   │   ├── Landing.jsx    # Landing page with team section
+│   │   │   ├── Dashboard.jsx  # User dashboard
+│   │   │   └── LecturePage.jsx # Recording & processing
+│   │   ├── 📂 contexts/       # React contexts (Auth, Theme)
+│   │   ├── 📂 services/       # API & Firebase services
+│   │   └── firebase.js        # Firebase configuration
+│   ├── 📂 public/             # Static assets
+│   └── package.json
+│
+├── 📂 docs/                    # Documentation
+│   ├── README.md
+│   ├── QUICKSTART.md
+│   ├── AUDIO_TRANSCRIPTION_SETUP.md
+│   ├── MIGRATION_COMPLETE.md
+│   ├── MULTILANGUAGE_FEATURE.md
+│   ├── OLLAMA_PERFORMANCE_OPTIMIZATION.md
+│   └── TTS_FEATURE.md
+│
+├── .gitignore
+├── start.ps1                   # PowerShell startup script
+└── start.bat                   # Batch startup script
+```
+
+---
+
+## 🏆 Why SimplifiED Stands Out
+
+<table>
+<tr>
+<td align="center" width="20%">
+<h3>🎯</h3>
+<b>Real Problem</b><br/>
+Solves genuine accessibility challenges
+</td>
+<td align="center" width="20%">
+<h3>♿</h3>
+<b>Inclusive</b><br/>
+Focused on education equity
+</td>
+<td align="center" width="20%">
+<h3>🤖</h3>
+<b>Privacy-First</b><br/>
+Local AI processing
+</td>
+<td align="center" width="20%">
+<h3>📱</h3>
+<b>Production-Ready</b><br/>
+Professional UI/UX
+</td>
+<td align="center" width="20%">
+<h3>🚀</h3>
+<b>Scalable</b><br/>
+Schools, colleges & EdTech
+</td>
+</tr>
+</table>
+
+---
+
+## 👥 Team
+
+<div align="center">
+
+### Code Lunatics
+
+*Built with ❤️ for inclusive education*
+
+</div>
+
+---
+
+## 📝 Documentation
+
+- 📘 [Quick Start Guide](docs/QUICKSTART.md)
+- 🎤 [Audio Transcription Setup](docs/AUDIO_TRANSCRIPTION_SETUP.md)
+- 🌐 [Multi-Language Feature](docs/MULTILANGUAGE_FEATURE.md)
+- ⚡ [Ollama Performance Optimization](docs/OLLAMA_PERFORMANCE_OPTIMIZATION.md)
+- 🔊 [Text-to-Speech Feature](docs/TTS_FEATURE.md)
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+---
+
+## 📄 License
+
+© 2025 Code Lunatics Team. All rights reserved.
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+
+### ⭐ Star us on GitHub!
+
+If SimplifiED helps make education more accessible, consider giving us a star!
+
+[![GitHub stars](https://img.shields.io/github/stars/VTG56/VoiceGuard-AI?style=social)](https://github.com/VTG56/VoiceGuard-AI)
+
+**Made with 💙 for students who learn differently**
+
+</div>
