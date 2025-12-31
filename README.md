@@ -352,8 +352,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-### ⭐ Star us on GitHub!
-
 If SimplifiED helps make education more accessible, consider giving us a star!
 
 [![GitHub stars](https://img.shields.io/github/stars/VTG56/VoiceGuard-AI?style=social)](https://github.com/VTG56/VoiceGuard-AI)
