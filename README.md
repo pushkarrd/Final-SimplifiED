@@ -170,7 +170,7 @@ graph LR
 
 #### Detailed Stack
 
-**Frontend**
+**🎨 Frontend**
 - React 19 – UI development
 - Vite – Fast build tool
 - Tailwind CSS – Responsive styling
@@ -179,17 +179,15 @@ graph LR
 - Firebase SDK – Authentication & storage
 - Web Speech API – Speech recognition
 
-**Backend**
+**⚙️ Backend**
 - Python 3.9+
 - FastAPI – Modern API framework
-- Uvicorn – ASGI server
 - Ollama – Local LLM runtime
 - LLaMA 3.2 (3B) – AI model
 - Firebase Admin SDK – Backend auth
 
-**Accessibility**
+**♿ Accessibility**
 - OpenDyslexic – Dyslexia-friendly font
-- Geom – Default UI font
 
 ---
 
@@ -353,8 +351,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 <div align="center">
 
 If SimplifiED helps make education more accessible, consider giving us a star!
-
-[![GitHub stars](https://img.shields.io/github/stars/VTG56/VoiceGuard-AI?style=social)](https://github.com/VTG56/VoiceGuard-AI)
 
 **Made with 💙 for students who learn differently**
 
