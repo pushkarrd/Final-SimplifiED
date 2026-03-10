@@ -1,4 +1,12 @@
 @import "tailwindcss";
+@import url('https://fonts.cdnfonts.com/css/opendyslexic');
+
+:root {
+  --a11y-font-size: 18px;
+  --a11y-letter-spacing: 0px;
+  --a11y-word-spacing: 0px;
+  --a11y-line-height: 1.6;
+}
 
 * {
   -webkit-tap-highlight-color: transparent;
@@ -13,7 +21,7 @@ body {
   font-family: "Geom", sans-serif;
   font-optical-sizing: auto;
   font-style: normal;
-  transition: font-family 0.3s ease;
+  transition: font-family 0.3s ease, filter 0.3s ease;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   width: 100%;
@@ -22,6 +30,43 @@ body {
 
 body.dyslexic-mode {
   font-family: 'OpenDyslexic', sans-serif !important;
+}
+
+body.high-contrast {
+  filter: contrast(1.4);
+}
+
+body.focus-mode .focus-dimmable {
+  opacity: 0.3;
+  transition: opacity 0.3s ease;
+}
+
+body.focus-mode .focus-dimmable:hover,
+body.focus-mode .focus-dimmable:focus-within {
+  opacity: 1;
+}
+
+/* Reading content - respects accessibility settings */
+.reading-content {
+  font-size: var(--a11y-font-size);
+  letter-spacing: var(--a11y-letter-spacing);
+  word-spacing: var(--a11y-word-spacing);
+  line-height: var(--a11y-line-height);
+  max-width: 65ch;
+  transition: all 0.3s ease;
+}
+
+/* Reading ruler - horizontal highlight bar */
+.reading-ruler {
+  position: fixed;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 9980;
+  border-top: 2px solid rgba(99, 102, 241, 0.5);
+  border-bottom: 2px solid rgba(99, 102, 241, 0.5);
+  background: rgba(99, 102, 241, 0.08);
+  transition: top 0.05s linear;
 }
 
 /* Touch-friendly targets - minimum 48px */

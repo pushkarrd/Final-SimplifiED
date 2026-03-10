@@ -28,7 +28,7 @@ export default function Dashboard() {
     totalHours: 0,
     thisWeek: 0,
   });
-  
+
   // Get user's first name from display name or email
   const getUserFirstName = () => {
     if (currentUser?.displayName) {
@@ -39,9 +39,9 @@ export default function Dashboard() {
     }
     return 'Student';
   };
-  
+
   const userName = getUserFirstName();
-  
+
   // Fetch user's lectures
   useEffect(() => {
     const fetchLectures = async () => {
@@ -49,36 +49,36 @@ export default function Dashboard() {
         setLoading(false);
         return;
       }
-      
+
       try {
         setLoading(true);
         const lectures = await getUserLectures(currentUser.uid);
-        
+
         // Sort by creation date (newest first)
         const sortedLectures = lectures.sort((a, b) => {
           const dateA = a.createdAt?._seconds || 0;
           const dateB = b.createdAt?._seconds || 0;
           return dateB - dateA;
         });
-        
+
         // Assign lecture numbers (newest = Lecture 1)
         const lecturesWithNumbers = sortedLectures.map((lecture, index) => ({
           ...lecture,
           lectureNumber: index + 1
         }));
-        
+
         // Show only top 6 most recent
         setRecentLectures(lecturesWithNumbers.slice(0, 6));
-        
+
         // Calculate stats
         const now = new Date();
         const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        
+
         const thisWeekCount = lectures.filter(lecture => {
           const lectureDate = new Date((lecture.createdAt?._seconds || 0) * 1000);
           return lectureDate >= oneWeekAgo;
         }).length;
-        
+
         setStats({
           totalLectures: lectures.length,
           totalHours: Math.round(lectures.length * 0.5), // Estimate 0.5 hours per lecture
@@ -90,38 +90,38 @@ export default function Dashboard() {
         setLoading(false);
       }
     };
-    
+
     fetchLectures();
   }, [currentUser]);
-  
+
   // Delete old lectures beyond top 6
   const cleanupOldLectures = async () => {
     if (!currentUser?.uid) return;
-    
+
     if (!window.confirm('This will delete all lectures except the 6 most recent. Continue?')) {
       return;
     }
-    
+
     try {
       setLoading(true);
       const lectures = await getUserLectures(currentUser.uid);
-      
+
       // Sort by creation date (newest first)
       const sortedLectures = lectures.sort((a, b) => {
         const dateA = a.createdAt?._seconds || 0;
         const dateB = b.createdAt?._seconds || 0;
         return dateB - dateA;
       });
-      
+
       // Get lectures to delete (all except top 6)
       const lecturesToDelete = sortedLectures.slice(6);
-      
+
       if (lecturesToDelete.length === 0) {
         alert('You have 6 or fewer lectures. Nothing to delete.');
         setLoading(false);
         return;
       }
-      
+
       // Delete old lectures
       let deletedCount = 0;
       for (const lecture of lecturesToDelete) {
@@ -132,9 +132,9 @@ export default function Dashboard() {
           console.error(`Failed to delete lecture ${lecture.id}:`, error);
         }
       }
-      
+
       alert(`Successfully deleted ${deletedCount} old lecture(s).`);
-      
+
       // Refresh the lecture list
       window.location.reload();
     } catch (error) {
@@ -144,12 +144,12 @@ export default function Dashboard() {
       setLoading(false);
     }
   };
-  
+
   // Handle audio upload completion
   const handleAudioUploadComplete = async (transcription) => {
     try {
       setShowUploadModal(false);
-      
+
       if (!currentUser?.uid) {
         alert('Please log in to save your recording');
         return;
@@ -157,16 +157,16 @@ export default function Dashboard() {
 
       // Create lecture with transcription
       const lectureId = await createLecture(currentUser.uid, transcription);
-      
+
       // Navigate to lecture page which will auto-process
       navigate(`/lecture?id=${lectureId}&autoProcess=true`);
-      
+
     } catch (error) {
       console.error('Error saving uploaded audio transcription:', error);
       alert('Failed to save transcription. Please try again.');
     }
   };
-  
+
   // Format timestamp to readable date
   const formatDate = (timestamp) => {
     if (!timestamp?._seconds) return 'Just now';
@@ -176,20 +176,20 @@ export default function Dashboard() {
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
-    
+
     if (diffMins < 1) return 'Just now';
     if (diffMins < 60) return `${diffMins} min ago`;
     if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
     if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
     return date.toLocaleDateString();
   };
-  
+
   return (
     <div className="min-h-screen relative bg-black overflow-hidden">
       {/* Silk Background - Covers entire page */}
       {/* Dark base layer */}
       <div className="fixed inset-0 w-full h-full bg-gradient-to-br from-black via-blue-950 to-slate-950 pointer-events-none z-0"></div>
-      
+
       {/* Primary Silk layer - Bright Blue */}
       <div className="fixed inset-0 w-full h-full pointer-events-none opacity-60 z-0">
         <Silk
@@ -200,7 +200,7 @@ export default function Dashboard() {
           rotation={0.3}
         />
       </div>
-      
+
       {/* Secondary Silk layer - Purple */}
       <div className="fixed inset-0 w-full h-full pointer-events-none opacity-40 z-0">
         <Silk
@@ -211,7 +211,7 @@ export default function Dashboard() {
           rotation={-0.2}
         />
       </div>
-      
+
       {/* Tertiary Silk layer - Cyan */}
       <div className="fixed inset-0 w-full h-full pointer-events-none opacity-30 z-0">
         <Silk
@@ -226,7 +226,7 @@ export default function Dashboard() {
       {/* Content */}
       <div className="relative z-10">
         <Navbar />
-      
+
         <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 md:py-8">
           {/* Welcome section with Dyslexic Mode Button */}
           <div className="mb-6 md:mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -238,15 +238,15 @@ export default function Dashboard() {
                 Ready to make learning easier today?
               </p>
             </div>
-            
+
             {/* Dyslexic User Toggle Button */}
             <button
               onClick={toggleDyslexicMode}
               className={`
                 flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold text-sm sm:text-base
                 transition-all duration-300 transform hover:scale-105 shadow-lg flex-shrink-0 touch-target
-                ${isDyslexicMode 
-                  ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-blue-500/50' 
+                ${isDyslexicMode
+                  ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-blue-500/50'
                   : 'bg-white/10 backdrop-blur-sm text-white border-2 border-white/30 hover:bg-white/20'
                 }
               `}
@@ -255,7 +255,7 @@ export default function Dashboard() {
               <span className="whitespace-nowrap">{isDyslexicMode ? 'Dyslexic ON' : 'Dyslexic User'}</span>
             </button>
           </div>
-          
+
           {/* Stats cards */}
           {/* 3 cards in grid: Total Lectures, Total Hours, This Week */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-6 md:mb-8">
@@ -264,20 +264,20 @@ export default function Dashboard() {
               <div className="text-2xl sm:text-3xl font-bold text-blue-400">{stats.totalLectures}</div>
               <div className="text-xs sm:text-sm text-gray-100">Total Lectures</div>
             </div>
-            
+
             <div className="bg-white/10 backdrop-blur-sm border-2 border-white/20 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl hover:bg-white/20 transition-all duration-300">
               <div className="text-2xl sm:text-3xl mb-2">⏱️</div>
               <div className="text-2xl sm:text-3xl font-bold text-purple-400">{stats.totalHours}h</div>
               <div className="text-xs sm:text-sm text-gray-100">Hours Recorded</div>
             </div>
-            
+
             <div className="bg-white/10 backdrop-blur-sm border-2 border-white/20 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl hover:bg-white/20 transition-all duration-300">
               <div className="text-2xl sm:text-3xl mb-2">📅</div>
               <div className="text-2xl sm:text-3xl font-bold text-cyan-400">{stats.thisWeek}</div>
               <div className="text-xs sm:text-sm text-gray-100">This Week</div>
             </div>
           </div>
-        
+
           {/* Quick actions */}
           <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-6 mb-6 md:mb-8">
             {/* Start New Lecture card */}
@@ -290,9 +290,9 @@ export default function Dashboard() {
                 </div>
               </Link>
             </div>
-            
+
             {/* Upload Audio card */}
-            <div 
+            <div
               onClick={() => setShowUploadModal(true)}
               className="bg-white/10 backdrop-blur-sm border-2 border-white/20 p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 cursor-pointer group touch-target h-full flex flex-col"
             >
@@ -301,7 +301,49 @@ export default function Dashboard() {
               <p className="text-sm sm:text-base text-gray-100">Upload an existing audio file</p>
             </div>
           </div>
-          
+
+          {/* AI Features Grid */}
+          <div className="mb-6 md:mb-8">
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 drop-shadow-lg">🧠 AI Learning Tools</h2>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              {/* Reading Assistant */}
+              <Link to="/reading" className="group">
+                <div className="bg-gradient-to-br from-indigo-600/30 to-blue-600/30 backdrop-blur-sm border-2 border-indigo-400/30 p-4 sm:p-5 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl hover:border-indigo-400/60 hover:scale-105 transition-all duration-300 h-full">
+                  <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">📖</div>
+                  <h3 className="text-sm sm:text-base font-bold text-white mb-1">Reading Assistant</h3>
+                  <p className="text-xs text-gray-300">Dyslexia-friendly reader with TTS</p>
+                </div>
+              </Link>
+
+              {/* Handwriting Check */}
+              <Link to="/handwriting" className="group">
+                <div className="bg-gradient-to-br from-purple-600/30 to-pink-600/30 backdrop-blur-sm border-2 border-purple-400/30 p-4 sm:p-5 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl hover:border-purple-400/60 hover:scale-105 transition-all duration-300 h-full">
+                  <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">✍️</div>
+                  <h3 className="text-sm sm:text-base font-bold text-white mb-1">Handwriting Check</h3>
+                  <p className="text-xs text-gray-300">AI detects writing errors</p>
+                </div>
+              </Link>
+
+              {/* Content Generator */}
+              <Link to="/generator" className="group">
+                <div className="bg-gradient-to-br from-amber-600/30 to-orange-600/30 backdrop-blur-sm border-2 border-amber-400/30 p-4 sm:p-5 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl hover:border-amber-400/60 hover:scale-105 transition-all duration-300 h-full">
+                  <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">✨</div>
+                  <h3 className="text-sm sm:text-base font-bold text-white mb-1">Content Generator</h3>
+                  <p className="text-xs text-gray-300">Notes, flashcards, quizzes & more</p>
+                </div>
+              </Link>
+
+              {/* Progress Analytics */}
+              <Link to="/analytics" className="group">
+                <div className="bg-gradient-to-br from-emerald-600/30 to-teal-600/30 backdrop-blur-sm border-2 border-emerald-400/30 p-4 sm:p-5 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl hover:border-emerald-400/60 hover:scale-105 transition-all duration-300 h-full">
+                  <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">📊</div>
+                  <h3 className="text-sm sm:text-base font-bold text-white mb-1">Progress Analytics</h3>
+                  <p className="text-xs text-gray-300">Track your learning journey</p>
+                </div>
+              </Link>
+            </div>
+          </div>
+
           {/* Recent lectures section */}
           <div className="bg-white/10 backdrop-blur-sm border-2 border-white/20 p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-lg">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-6">
@@ -317,7 +359,7 @@ export default function Dashboard() {
                 </button>
               )}
             </div>
-            
+
             {/* Loading state */}
             {loading ? (
               <div className="text-center py-8 sm:py-12">
@@ -356,14 +398,14 @@ export default function Dashboard() {
                           Lecture {lecture.lectureNumber}
                         </h3>
                       </div>
-                      
+
                       {/* Lecture Details */}
                       <div className="p-3 sm:p-4 md:p-6">
                         <p className="text-gray-200 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-3 min-h-[45px] sm:min-h-[60px]">
                           {lecture.transcription?.substring(0, 100)}
                           {lecture.transcription?.length > 100 ? '...' : ''}
                         </p>
-                        
+
                         {/* Status Badge */}
                         <div className="mb-3 sm:mb-4">
                           {lecture.simpleText || lecture.summary ? (
@@ -376,7 +418,7 @@ export default function Dashboard() {
                             </span>
                           )}
                         </div>
-                        
+
                         {/* Metadata */}
                         <div className="space-y-1 sm:space-y-2 text-xs text-gray-300">
                           <div className="flex items-center gap-2">
@@ -399,7 +441,7 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-      
+
       {/* Audio Upload Modal */}
       {showUploadModal && (
         <AudioUpload

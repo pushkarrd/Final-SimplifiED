@@ -460,6 +460,276 @@ async def transcribe_audio(file: UploadFile = File(...)):
         print(f"Transcription error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Transcription failed: {str(e)}")
 
+
+# ============================================
+# NEW ENDPOINTS: Handwriting, Content, Analytics
+# ============================================
+
+import base64
+
+class ContentTransformRequest(BaseModel):
+    text: str
+    userId: str = "anonymous"
+
+class RecommendationRequest(BaseModel):
+    userId: str
+    readingSessions: int = 0
+    avgQuizScore: float = 0
+    handwritingErrors: int = 0
+
+
+@app.post("/api/handwriting/analyze")
+async def analyze_handwriting(file: UploadFile = File(...), userId: str = "anonymous"):
+    """
+    Analyze handwriting image for dyslexia-related errors using GROQ Vision AI
+    """
+    try:
+        file_content = await file.read()
+        base64_image = base64.b64encode(file_content).decode('utf-8')
+        
+        # Determine mime type
+        mime_type = file.content_type or 'image/jpeg'
+        
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {GROQ_API_KEY}"
+        }
+        
+        payload = {
+            "messages": [
+                {
+                    "role": "system",
+                    "content": """You are a dyslexia handwriting analysis expert. Analyze handwritten text in images and detect common dyslexia-related errors.
+
+IMPORTANT: You must respond ONLY with valid JSON in exactly this format, no other text:
+{
+  "score": <number 0-100>,
+  "summary": "<brief overall assessment>",
+  "errors": [
+    {
+      "type": "<Letter Reversal|Spacing Issue|Formation Error|Alignment Issue|Mirror Writing>",
+      "severity": "<high|medium|low>",
+      "description": "<what was found>",
+      "suggestion": "<how to improve>"
+    }
+  ],
+  "recommendations": ["<practice tip 1>", "<practice tip 2>", "<practice tip 3>"]
+}"""
+                },
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Analyze this handwriting for dyslexia-related errors. Check for: letter reversals (b/d, p/q, m/w), spacing problems, incorrect letter formation, inconsistent alignment, mirror writing. Provide a score from 0-100 and list all detected issues with severity levels."
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:{mime_type};base64,{base64_image}"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "model": "llama-3.2-90b-vision-preview",
+            "temperature": 0.3,
+            "max_tokens": 1500
+        }
+        
+        response = requests.post(GROQ_API_URL, headers=headers, json=payload, timeout=60)
+        
+        if response.status_code != 200:
+            print(f"GROQ Vision API Error: {response.status_code} - {response.text}")
+            raise HTTPException(status_code=500, detail=f"Vision API error: {response.text}")
+        
+        result_text = response.json()['choices'][0]['message']['content']
+        
+        # Parse the JSON response
+        try:
+            # Try to extract JSON from the response
+            json_start = result_text.find('{')
+            json_end = result_text.rfind('}') + 1
+            if json_start >= 0 and json_end > json_start:
+                result = json.loads(result_text[json_start:json_end])
+            else:
+                result = json.loads(result_text)
+        except json.JSONDecodeError:
+            # Fallback structured response
+            result = {
+                "score": 70,
+                "summary": result_text[:200],
+                "errors": [
+                    {
+                        "type": "Analysis Note",
+                        "severity": "medium",
+                        "description": result_text[:300],
+                        "suggestion": "Review the detailed analysis and practice the identified areas."
+                    }
+                ],
+                "recommendations": [
+                    "Practice letter formation with tracing exercises",
+                    "Use lined paper to improve alignment",
+                    "Focus on commonly reversed letters"
+                ]
+            }
+        
+        # Save to Firestore
+        try:
+            db.collection("handwritingUploads").add({
+                "userId": userId,
+                "score": result.get("score", 0),
+                "errorCount": len(result.get("errors", [])),
+                "errors": result.get("errors", []),
+                "createdAt": datetime.now()
+            })
+        except Exception as save_err:
+            print(f"Failed to save handwriting result: {save_err}")
+        
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Handwriting analysis error: {e}")
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+
+
+@app.post("/api/content/transform")
+async def transform_content(request: ContentTransformRequest):
+    """
+    Transform educational content into multiple learning formats:
+    simplified notes, flashcards, quiz, mind map
+    """
+    try:
+        text = request.text
+        if not text.strip():
+            raise HTTPException(status_code=400, detail="No text provided")
+        
+        print(f"🔄 Transforming content ({len(text)} chars)...")
+        start_time = time.time()
+        
+        from concurrent.futures import ThreadPoolExecutor
+        
+        notes_prompt = f"""Simplify this educational content for a student with dyslexia. Use:
+- Short, clear sentences
+- Simple vocabulary
+- Bullet points for key facts
+- Bold key terms
+
+Text:
+{text}
+
+Simplified notes:"""
+        
+        flashcard_prompt = f"""Create 5-8 flashcards from this content. Format EXACTLY as:
+Q: [question]
+A: [answer]
+
+Q: [question]
+A: [answer]
+
+Text:
+{text}
+
+Flashcards:"""
+        
+        quiz_prompt = f"""Create a 5-question multiple choice quiz from this content. Format EXACTLY as:
+
+1. [Question text]
+A. [Option]
+B. [Option]
+C. [Option] (correct)
+D. [Option]
+
+Mark the correct answer with (correct). 
+
+Text:
+{text}
+
+Quiz:"""
+        
+        mindmap_prompt = f"""Create a text-based mind map from this content. Format as:
+
+Main Topic Name
+├─ Category 1
+│  ├─ Detail 1a
+│  └─ Detail 1b
+├─ Category 2
+│  ├─ Detail 2a
+│  └─ Detail 2b
+└─ Category 3
+   ├─ Detail 3a
+   └─ Detail 3b
+
+Text:
+{text}
+
+Mind Map:"""
+        
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            notes_future = executor.submit(generate_with_groq, notes_prompt, "Simplify content for dyslexic learners. Be clear and concise.")
+            flashcard_future = executor.submit(generate_with_groq, flashcard_prompt, "Create flashcards. Use Q: and A: format strictly.")
+            quiz_future = executor.submit(generate_with_groq, quiz_prompt, "Create a quiz. Mark correct answers with (correct).")
+            mindmap_future = executor.submit(generate_with_groq, mindmap_prompt, "Create a text mind map using tree characters.")
+            
+            simplified_notes = notes_future.result()
+            flashcards = flashcard_future.result()
+            quiz = quiz_future.result()
+            mind_map = mindmap_future.result()
+        
+        elapsed = time.time() - start_time
+        print(f"✅ Content transformation complete in {elapsed:.1f}s")
+        
+        return {
+            "simplifiedNotes": simplified_notes,
+            "flashcards": flashcards,
+            "quiz": quiz,
+            "mindMap": mind_map,
+            "processingTime": elapsed
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Content transformation error: {e}")
+        raise HTTPException(status_code=500, detail=f"Transformation failed: {str(e)}")
+
+
+@app.post("/api/analytics/recommend")
+async def get_recommendations(request: RecommendationRequest):
+    """Generate AI-powered learning recommendations based on user stats"""
+    try:
+        prompt = f"""Based on these learning statistics for a dyslexic student, provide 4-5 personalized practice recommendations:
+
+- Reading sessions completed: {request.readingSessions}
+- Average quiz score: {request.avgQuizScore}%
+- Handwriting errors detected: {request.handwritingErrors}
+
+Provide specific, actionable recommendations. Format as a JSON array:
+[
+  {{"title": "...", "description": "...", "priority": "high|medium|low"}}
+]"""
+        
+        result = generate_with_groq(prompt, "You are an educational psychologist specializing in dyslexia. Provide practical learning recommendations. Respond with valid JSON only.")
+        
+        try:
+            json_start = result.find('[')
+            json_end = result.rfind(']') + 1
+            recommendations = json.loads(result[json_start:json_end])
+        except:
+            recommendations = [
+                {"title": "Practice daily reading", "description": "Spend 15-20 minutes reading with the Reading Assistant.", "priority": "high"},
+                {"title": "Review weak areas", "description": "Focus on topics where quiz scores are lowest.", "priority": "medium"},
+            ]
+        
+        return {"recommendations": recommendations}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Recommendation failed: {str(e)}")
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
